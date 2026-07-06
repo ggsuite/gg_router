@@ -284,15 +284,18 @@ class GgRouterExample extends StatelessWidget {
           height: 50,
           child: Container(
             color: const Color(0x11FFFFFF),
-            child: StreamBuilder(
-              stream: param.stream,
-              builder: (context, snapshot) {
-                return CheckboxListTile(
-                  title: const Text('Visit Event'),
-                  value: param.value,
-                  onChanged: (newValue) => param.value = newValue as bool,
-                );
-              },
+            child: Material(
+              type: MaterialType.transparency,
+              child: StreamBuilder(
+                stream: param.stream,
+                builder: (context, snapshot) {
+                  return CheckboxListTile(
+                    title: const Text('Visit Event'),
+                    value: param.value,
+                    onChanged: (newValue) => param.value = newValue as bool,
+                  );
+                },
+              ),
             ),
           ),
         ),
