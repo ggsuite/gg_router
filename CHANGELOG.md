@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [3.1.9] - 2026-07-07
 
 ### Changed
 
@@ -164,7 +164,7 @@ tree be managed outside the widget hierarchy.
 
 - The first public version of GgRouter.
 
-[Unreleased]: https://github.com/inlavigo/gg_router/compare/3.1.8...HEAD
+[3.1.9]: https://github.com/inlavigo/gg_router/compare/3.1.8...3.1.9
 [3.1.8]: https://github.com/inlavigo/gg_router/compare/3.1.7...3.1.8
 [3.1.7]: https://github.com/inlavigo/gg_router/compare/3.1.6...3.1.7
 [3.1.6]: https://github.com/inlavigo/gg_router/compare/3.1.5...3.1.6
