@@ -9,10 +9,7 @@ import '../gg_router.dart';
 
 class GgRouteChangeBuilder extends StatelessWidget {
   /// Creates a widget rebuilding its child on child route changes
-  const GgRouteChangeBuilder({
-    super.key,
-    required this.builder,
-  });
+  const GgRouteChangeBuilder({super.key, required this.builder});
 
   final WidgetBuilder builder;
 

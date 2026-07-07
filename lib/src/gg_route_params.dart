@@ -28,11 +28,7 @@ class GgRouteParams extends StatelessWidget {
   /// Constructor.
   /// - [key] - The widget's key.
 
-  const GgRouteParams({
-    super.key,
-    required this.child,
-    required this.params,
-  });
+  const GgRouteParams({super.key, required this.child, required this.params});
 
   // ...........................................................................
   /// The parameters that will be assigned to the current route tree node.
@@ -69,9 +65,11 @@ class GgRouteParams extends StatelessWidget {
         final ownParams = params.keys;
         for (var ownParam in ownParams) {
           if (existingParams.contains(ownParam)) {
-            throw ArgumentError('Cannot process route param "$ownParam". '
-                'There is already a parent GgRouteParams object, containing a route param with the name "$ownParam". '
-                'Make sure you are using unique param names accross a route and its parents.');
+            throw ArgumentError(
+              'Cannot process route param "$ownParam". '
+              'There is already a parent GgRouteParams object, containing a route param with the name "$ownParam". '
+              'Make sure you are using unique param names accross a route and its parents.',
+            );
           }
         }
       }

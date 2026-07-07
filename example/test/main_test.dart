@@ -11,7 +11,7 @@ import 'package:gg_router/gg_router.dart';
 import 'package:gg_router_example/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-main() {
+void main() {
   group('GgRouterExample', () {
     // .........................................................................
     late GgEasyWidgetTest<GgRouterExample, dynamic> ggRouterExample;
@@ -39,16 +39,16 @@ main() {
 
       // .......................................
       // Put the lastState to shared preferences
-      SharedPreferences.setMockInitialValues(
-        {'lastApplicationState': lastState},
-      );
+      SharedPreferences.setMockInitialValues({
+        'lastApplicationState': lastState,
+      });
     }
 
     // .........................................................................
     GgEasyWidgetTest? page(String key, WidgetTester tester) {
       final finder = find.byKey(ValueKey(key));
       final elements = finder.evaluate();
-      if (elements.length > 0) {
+      if (elements.isNotEmpty) {
         return GgEasyWidgetTest(finder, tester);
       }
       return null;
@@ -81,8 +81,10 @@ main() {
 
     // .........................................................................
     updateRouterDelegate(WidgetTester tester) {
-      routerDelegate = (tester.widget(find.byType(MaterialApp)) as MaterialApp)
-          .routerDelegate as GgRouterDelegate;
+      routerDelegate =
+          (tester.widget(find.byType(MaterialApp)) as MaterialApp)
+                  .routerDelegate
+              as GgRouterDelegate;
     }
 
     // .........................................................................
@@ -113,8 +115,8 @@ main() {
       final button = index == 0
           ? bottomBarButton0
           : index == 1
-              ? bottomBarButton1
-              : bottomBarButton2;
+          ? bottomBarButton1
+          : bottomBarButton2;
 
       final gesture = await tester.startGesture(button!.absoluteFrame.center);
       await gesture.up();
@@ -140,8 +142,9 @@ main() {
     }
 
     // .........................................................................
-    testWidgets('should only show the visible route page',
-        (WidgetTester tester) async {
+    testWidgets('should only show the visible route page', (
+      WidgetTester tester,
+    ) async {
       // ................................
       // Check the inital size of the app
       await setUp(tester);
@@ -192,8 +195,9 @@ main() {
     });
 
     // .........................................................................
-    testWidgets('sports show a bottom navigation bar with tree items',
-        (WidgetTester tester) async {
+    testWidgets('sports show a bottom navigation bar with tree items', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
 
       // .......................
@@ -224,43 +228,45 @@ main() {
 
     // .........................................................................
     testWidgets(
-        'transportation should show a bottom navigation bar with tree items',
-        (WidgetTester tester) async {
-      await setUp(tester);
+      'transportation should show a bottom navigation bar with tree items',
+      (WidgetTester tester) async {
+        await setUp(tester);
 
-      // .......................
-      // Jump to the sports page
-      await sportsButton.press();
-      update(tester);
+        // .......................
+        // Jump to the sports page
+        await sportsButton.press();
+        update(tester);
 
-      // .............................
-      // Switch to transportation page
-      await transportationButton.press();
+        // .............................
+        // Switch to transportation page
+        await transportationButton.press();
 
-      // ..........................
-      // Click on the first button
-      // => Basketball page should open
-      await pressBottomButton(0, tester);
-      expect(currentUri, startsWith('transportation/bus'));
+        // ..........................
+        // Click on the first button
+        // => Basketball page should open
+        await pressBottomButton(0, tester);
+        expect(currentUri, startsWith('transportation/bus'));
 
-      // ..........................
-      // Click on the second button
-      // => Basketball page should open
-      await pressBottomButton(1, tester);
-      expect(currentUri, startsWith('transportation/bike'));
+        // ..........................
+        // Click on the second button
+        // => Basketball page should open
+        await pressBottomButton(1, tester);
+        expect(currentUri, startsWith('transportation/bike'));
 
-      // ..........................
-      // Click on the third button
-      // => Handball page should open
-      await pressBottomButton(2, tester);
-      expect(currentUri, startsWith('transportation/car'));
+        // ..........................
+        // Click on the third button
+        // => Handball page should open
+        await pressBottomButton(2, tester);
+        expect(currentUri, startsWith('transportation/car'));
 
-      await tearDown(tester);
-    });
+        await tearDown(tester);
+      },
+    );
 
     // .........................................................................
-    testWidgets('places should show a bottom navigation bar with tree items',
-        (WidgetTester tester) async {
+    testWidgets('places should show a bottom navigation bar with tree items', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
 
       // .............................
@@ -290,10 +296,10 @@ main() {
     });
 
     // .........................................................................
-    testWidgets(
-        'when switching from transporations page back to sports page, '
-        'the last opened sports sub-page should be opeend',
-        (WidgetTester tester) async {
+    testWidgets('when switching from transporations page back to sports page, '
+        'the last opened sports sub-page should be opeend', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
 
       // .......................
@@ -323,13 +329,13 @@ main() {
     });
 
     // .........................................................................
-    testWidgets(
-        'when clicking on basket ball page, a dialog should open. '
+    testWidgets('when clicking on basket ball page, a dialog should open. '
         'The dialog should show a check box. '
         'Checking the checkbox should change the visit param in the URI. '
         'Changing the visit param in the URI should change the checkbox. '
-        'Clicking the close button should switch back.',
-        (WidgetTester tester) async {
+        'Clicking the close button should switch back.', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
 
       // .......................
@@ -340,8 +346,9 @@ main() {
 
       // ....................................................
       // Click on the basket ball in the center of the screen
-      final gesture =
-          await tester.startGesture(ggRouterExample.absoluteFrame.center);
+      final gesture = await tester.startGesture(
+        ggRouterExample.absoluteFrame.center,
+      );
       await gesture.up();
       update(tester);
 
@@ -398,13 +405,13 @@ main() {
       await tearDown(tester);
     });
 
-    testWidgets(
-        'when clicking on basket ball page, a dialog should open. '
+    testWidgets('when clicking on basket ball page, a dialog should open. '
         'Clicking on "Details" should open a detail page. '
         'Clicking on "Even more Details" should open another detail page. '
         'Clicking on the "back button" should navigate to the previous page. '
-        'Clicking on the "close button" should close the dialog. ',
-        (WidgetTester tester) async {
+        'Clicking on the "close button" should close the dialog. ', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
 
       // ................
@@ -429,8 +436,9 @@ main() {
 
       // .......................
       // Click on "More details"
-      final moreDetailsButtonFinder =
-          find.byKey(const ValueKey('More Details Button'));
+      final moreDetailsButtonFinder = find.byKey(
+        const ValueKey('More Details Button'),
+      );
       expect(moreDetailsButtonFinder, findsOneWidget);
       gesture = await tester.press(moreDetailsButtonFinder);
       await gesture.up();
@@ -471,8 +479,9 @@ main() {
     });
 
     // .........................................................................
-    testWidgets('opening an unknown URL should show an error in the snack bar',
-        (WidgetTester tester) async {
+    testWidgets('opening an unknown URL should show an error in the snack bar', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
 
       await routerDelegate.setNewRoutePath(
@@ -492,12 +501,14 @@ main() {
     });
 
     // .........................................................................
-    testWidgets('navigating to /xyz should open the wildcard page.',
-        (WidgetTester tester) async {
+    testWidgets('navigating to /xyz should open the wildcard page.', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
 
-      await routerDelegate
-          .setNewRoutePath(RouteInformation(uri: Uri.parse('/xyz')));
+      await routerDelegate.setNewRoutePath(
+        RouteInformation(uri: Uri.parse('/xyz')),
+      );
       await tester.pumpAndSettle();
 
       // Check if /xyz is the path of the staged child
@@ -511,14 +522,16 @@ main() {
     });
 
     // .........................................................................
-    testWidgets('The last state should be loaded from shared preferences.',
-        (WidgetTester tester) async {
+    testWidgets('The last state should be loaded from shared preferences.', (
+      WidgetTester tester,
+    ) async {
       // ................................................................
       // Define an application state which makes transportion/bus visible
       // by default.
 
       const stagedChildKey = GgRouteTreeNode.stagedChildJsonKey;
-      const lastState = '''
+      const lastState =
+          '''
       {
         "$stagedChildKey":"transportation",
         "transportation":{
@@ -540,8 +553,9 @@ main() {
     });
 
     // .........................................................................
-    testWidgets('State changes should be saved to shared preferences',
-        (WidgetTester tester) async {
+    testWidgets('State changes should be saved to shared preferences', (
+      WidgetTester tester,
+    ) async {
       initSharedPreferences();
 
       const stagedChildKey = GgRouteTreeNode.stagedChildJsonKey;
@@ -563,8 +577,9 @@ main() {
     });
 
     // .........................................................................
-    testWidgets('Semantic labels should be assigned correctly',
-        (WidgetTester tester) async {
+    testWidgets('Semantic labels should be assigned correctly', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
       expect(find.bySemanticsLabel('Navigate to Sports Page'), findsOneWidget);
       expect(

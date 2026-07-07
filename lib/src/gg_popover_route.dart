@@ -78,12 +78,7 @@ class GgPopoverRouteState extends State<GgPopoverRoute>
     if (_popOver == null) {
       return widget.base;
     } else {
-      final child = Stack(
-        children: [
-          widget.base,
-          _popOver!(context),
-        ],
-      );
+      final child = Stack(children: [widget.base, _popOver!(context)]);
 
       return child;
     }
@@ -96,7 +91,7 @@ class GgPopoverRouteState extends State<GgPopoverRoute>
   final List<Function()> _dispose = [];
 
   // ...........................................................................
-  _observeActiveChildChange() {
+  void _observeActiveChildChange() {
     final s = GgRouter.of(context).onActiveChildChange.listen((event) {
       _update();
     });
@@ -132,9 +127,9 @@ class GgPopoverRouteState extends State<GgPopoverRoute>
     // ..............................
     // Wrap content into GgRouterCore
     GgRouterCore content(BuildContext context) => GgRouterCore(
-          child: Builder(builder: (context) => widget.popover(context)),
-          node: popoverChild,
-        );
+      child: Builder(builder: (context) => widget.popover(context)),
+      node: popoverChild,
+    );
 
     // ...........................................................
     // If no animation is needed show the popover content directly
@@ -157,29 +152,27 @@ class GgPopoverRouteState extends State<GgPopoverRoute>
 
       // ...........................
       // Wrap content into animation
-      final animationCallback =
-          (fadeIn ? widget.inAnimation : widget.outAnimation)!;
+      final animationCallback = (fadeIn
+          ? widget.inAnimation
+          : widget.outAnimation)!;
 
       final cnt = content(context);
 
       _popOver = (BuildContext context) => LayoutBuilder(
-            builder: (context, layout) {
-              return AnimatedBuilder(
-                animation: _animation,
-                builder: (context, child) {
-                  return animationCallback(
-                    context,
-                    _animation,
-                    cnt,
-                    Size(
-                      layout.maxWidth,
-                      layout.maxHeight,
-                    ),
-                  );
-                },
+        builder: (context, layout) {
+          return AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return animationCallback(
+                context,
+                _animation,
+                cnt,
+                Size(layout.maxWidth, layout.maxHeight),
               );
             },
           );
+        },
+      );
 
       // ................................
       // Reset needs fade after animation
@@ -206,14 +199,16 @@ class GgPopoverRouteState extends State<GgPopoverRoute>
   late Function(AnimationStatus) _animationStatusListener;
 
   // ...........................................................................
-  _initAnimation() {
-    _animation =
-        AnimationController(vsync: this, duration: widget.animationDuration);
+  void _initAnimation() {
+    _animation = AnimationController(
+      vsync: this,
+      duration: widget.animationDuration,
+    );
     _dispose.add(() => _animation.dispose());
   }
 
   // ...........................................................................
-  _initSemanticLabel() {
+  void _initSemanticLabel() {
     if (widget.semanticLabel != null) {
       final node = GgRouter.of(context).node.findOrCreateChild(widget.name);
       node.semanticLabel = widget.semanticLabel!;

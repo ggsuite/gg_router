@@ -13,12 +13,13 @@ import 'package:gg_value/gg_value.dart';
 /// - [animation] The ongoing animation.
 /// - [child] The child to appear or disappear.
 /// - [size] The size of the enclosing widget.
-typedef GgAnimationBuilder = Widget Function(
-  BuildContext context,
-  Animation animation,
-  Widget child,
-  Size size,
-);
+typedef GgAnimationBuilder =
+    Widget Function(
+      BuildContext context,
+      Animation animation,
+      Widget child,
+      Size size,
+    );
 
 // #############################################################################
 /// During animation, wrap widgets into GgShowInForeground to have a widget
@@ -30,9 +31,7 @@ class GgShowInForeground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: child,
-    );
+    return Container(child: child);
   }
 }
 
@@ -172,9 +171,9 @@ class GgRouter extends StatefulWidget {
     this.inAnimation,
     this.outAnimation,
     this.animationDuration = const Duration(milliseconds: 500),
-  })  : _rootChild = null,
-        _rootNode = null,
-        super(key: key) {
+  }) : _rootChild = null,
+       _rootNode = null,
+       super(key: key) {
     _checkChildren();
     _checkAnimations();
     _checkSemanticLabels();
@@ -186,14 +185,14 @@ class GgRouter extends StatefulWidget {
     super.key,
     required Widget child,
     required GgRouteTreeNode node,
-  })  : _rootChild = child,
-        _rootNode = node,
-        children = const {},
-        semanticLabels = const {},
-        defaultRoute = null,
-        inAnimation = null,
-        outAnimation = null,
-        animationDuration = const Duration(milliseconds: 500);
+  }) : _rootChild = child,
+       _rootNode = node,
+       children = const {},
+       semanticLabels = const {},
+       defaultRoute = null,
+       inAnimation = null,
+       outAnimation = null,
+       animationDuration = const Duration(milliseconds: 500);
 
   // ...........................................................................
   /// Copies a router object and allows to replace single properties.
@@ -206,15 +205,15 @@ class GgRouter extends StatefulWidget {
     GgAnimationBuilder? inAnimation,
     GgAnimationBuilder? outAnimation,
     Duration? animationDuration,
-  })  : children = children ?? other.children,
-        semanticLabels = semanticLabels ?? other.semanticLabels,
-        defaultRoute = defaultRoute ?? other.defaultRoute,
-        inAnimation = inAnimation ?? other.inAnimation,
-        outAnimation = outAnimation ?? other.outAnimation,
-        animationDuration = animationDuration ?? other.animationDuration,
-        _rootChild = other._rootChild,
-        _rootNode = other._rootNode,
-        super(key: key ?? other.key);
+  }) : children = children ?? other.children,
+       semanticLabels = semanticLabels ?? other.semanticLabels,
+       defaultRoute = defaultRoute ?? other.defaultRoute,
+       inAnimation = inAnimation ?? other.inAnimation,
+       outAnimation = outAnimation ?? other.outAnimation,
+       animationDuration = animationDuration ?? other.animationDuration,
+       _rootChild = other._rootChild,
+       _rootNode = other._rootNode,
+       super(key: key ?? other.key);
 
   // ...........................................................................
   /// The duration for route transitions.
@@ -253,15 +252,12 @@ class GgRouter extends StatefulWidget {
 
   // ...........................................................................
   /// Returns the next [GgRouterState] instance in the widget tree.
-  static GgRouterCore of(
-    BuildContext context, {
-    bool rootRouter = false,
-  }) {
+  static GgRouterCore of(BuildContext context, {bool rootRouter = false}) {
     GgRouterCore? core = context.findAncestorWidgetOfExactType<GgRouterCore>();
 
     if (rootRouter) {
-      final rootRouterState =
-          context.findRootAncestorStateOfType<GgRouterState>()!;
+      final rootRouterState = context
+          .findRootAncestorStateOfType<GgRouterState>()!;
 
       core = rootRouterState.rootRouterCore;
     }
@@ -361,7 +357,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   GgRouteTreeNode? _nodeToBeFadedOut;
 
   late GgRouteTreeNode _parentNode;
-  _initParentNode() {
+  void _initParentNode() {
     if (!widget._isRoot) {
       _parentNode = GgRouter.of(context).node;
     }
@@ -392,7 +388,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
-  _updateStagedChild({bool isFirstTime = false}) {
+  void _updateStagedChild({bool isFirstTime = false}) {
     // Let's get the visible child
     GgRouteTreeNode? newVisibleNode = _parentNode.stagedChild;
 
@@ -408,7 +404,8 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // .......................................................
     // Check if a widget is available for the new visible node
     final routeExists = widget.children.keys.contains;
-    bool routeIsValid = newVisibleNode == null ||
+    bool routeIsValid =
+        newVisibleNode == null ||
         routeExists(newVisibleNode.name) ||
         routeExists('*');
 
@@ -496,10 +493,12 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   GgRouterCore? rootRouterCore;
 
   // ...........................................................................
-  _initRootRouterCore() {
+  void _initRootRouterCore() {
     if (widget._isRoot) {
-      rootRouterCore =
-          GgRouterCore(child: widget._rootChild!, node: widget._rootNode!);
+      rootRouterCore = GgRouterCore(
+        child: widget._rootChild!,
+        node: widget._rootNode!,
+      );
     }
   }
 
@@ -520,7 +519,6 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     if (animateIn || animateOut) {
       return _animate();
     }
-
     // .......................................................
     // If no animation is needed, just show the staying widget
     else {
@@ -546,8 +544,8 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     final nodeName = node == null
         ? null
         : widget.children.containsKey(node.name)
-            ? node.name
-            : '*';
+        ? node.name
+        : '*';
 
     return nodeName == null ? null : widget.children[nodeName];
   }
@@ -567,13 +565,13 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
             ? null
             // coverage:ignore-start
             : (BuildContext context) => GgRouterCore(
-                  child: Builder(
-                    builder: (context) =>
-                        widget.children[_stagedNode!.name]?.call(context) ??
-                        Container(),
-                  ),
-                  node: _stagedNode!,
-                );
+                child: Builder(
+                  builder: (context) =>
+                      widget.children[_stagedNode!.name]?.call(context) ??
+                      Container(),
+                ),
+                node: _stagedNode!,
+              );
         // coverage:ignore-end
 
         // .............
@@ -588,12 +586,8 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
         final inWidget = childIn == null
             ? null
-            : () => widget.inAnimation!.call(
-                  context,
-                  _animation,
-                  childIn,
-                  size,
-                );
+            : () =>
+                  widget.inAnimation!.call(context, _animation, childIn, size);
 
         // .............
         // Animation out
@@ -608,11 +602,11 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
         final outWidget = childOut == null
             ? null
             : () => widget.outAnimation!.call(
-                  context,
-                  _animation,
-                  childOut,
-                  size,
-                );
+                context,
+                _animation,
+                childOut,
+                size,
+              );
 
         return AnimatedBuilder(
           animation: _animation,
@@ -653,9 +647,11 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
-  _initAnimation() {
-    _animation =
-        AnimationController(vsync: this, duration: widget.animationDuration);
+  void _initAnimation() {
+    _animation = AnimationController(
+      vsync: this,
+      duration: widget.animationDuration,
+    );
 
     listner(status) {
       setState(() {});
@@ -678,14 +674,14 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
-  _createChildNodes(GgRouteTreeNode parentNode) {
+  void _createChildNodes(GgRouteTreeNode parentNode) {
     for (var routeName in widget.children.keys) {
       parentNode.findOrCreateChild(routeName);
     }
   }
 
   // ...........................................................................
-  _setupDefaultChild(GgRouteTreeNode parentNode) {
+  void _setupDefaultChild(GgRouteTreeNode parentNode) {
     if (widget.defaultRoute != null) {
       if (!widget.children.containsKey(widget.defaultRoute)) {
         throw ArgumentError(
@@ -698,7 +694,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
-  _setupSemanticLabels(GgRouteTreeNode parentNode) {
+  void _setupSemanticLabels(GgRouteTreeNode parentNode) {
     widget.semanticLabels.forEach((key, value) {
       parentNode.findOrCreateChild(key).semanticLabel = value;
     });

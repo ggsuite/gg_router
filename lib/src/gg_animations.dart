@@ -59,8 +59,10 @@ class GgMoveOutToRight extends GgAnimation {
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-      offset:
-          Offset(Curves.easeInOut.transform(animation.value) * size.width, 0),
+      offset: Offset(
+        Curves.easeInOut.transform(animation.value) * size.width,
+        0,
+      ),
       child: child,
     );
   }
@@ -103,8 +105,10 @@ class GgMoveOutToLeft extends GgAnimation {
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-      offset:
-          Offset(-Curves.easeInOut.transform(animation.value) * size.width, 0),
+      offset: Offset(
+        -Curves.easeInOut.transform(animation.value) * size.width,
+        0,
+      ),
       child: child,
     );
   }
@@ -151,8 +155,10 @@ class GgMoveOutToTop extends GgAnimation {
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-      offset:
-          Offset(0, -Curves.easeInOut.transform(animation.value) * size.height),
+      offset: Offset(
+        0,
+        -Curves.easeInOut.transform(animation.value) * size.height,
+      ),
       child: child,
     );
   }
@@ -195,8 +201,10 @@ class GgMoveOutToBottom extends GgAnimation {
   @override
   Widget build(BuildContext context) {
     return Transform.translate(
-      offset:
-          Offset(0, Curves.easeInOut.transform(animation.value) * size.height),
+      offset: Offset(
+        0,
+        Curves.easeInOut.transform(animation.value) * size.height,
+      ),
       child: child,
     );
   }

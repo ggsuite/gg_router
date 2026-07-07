@@ -11,7 +11,7 @@ import 'package:gg_router/src/gg_route_tree_node.dart';
 
 class OtherClass {}
 
-main() {
+void main() {
   late GgRouteTreeNode root;
   late GgRouteTreeNode childA0;
   late GgRouteTreeNode childA1;
@@ -48,8 +48,7 @@ main() {
   group('GgRouteTreeNode', () {
     // #########################################################################
     group('dispose()', () {
-      test(
-          'should remove all children from the node. '
+      test('should remove all children from the node. '
           'Should remove the node from its parents list of children. '
           'Should reset the staged child property of its parent. '
           'Should dispose also all children', () {
@@ -128,20 +127,22 @@ main() {
         dispose();
       });
 
-      test('should throw an exception if name of an root node is not "_ROOT_"',
-          () {
-        init();
-        expect(
-          () => GgRouteTreeNode(name: 'root', parent: null),
-          throwsA(
-            predicate((GgRouteTreeNodeError error) {
-              expect(error.id, 'GRC008501');
-              expect(error.message, 'Root nodes must have name "_ROOT_".');
-              return true;
-            }),
-          ),
-        );
-      });
+      test(
+        'should throw an exception if name of an root node is not "_ROOT_"',
+        () {
+          init();
+          expect(
+            () => GgRouteTreeNode(name: 'root', parent: null),
+            throwsA(
+              predicate((GgRouteTreeNodeError error) {
+                expect(error.id, 'GRC008501');
+                expect(error.message, 'Root nodes must have name "_ROOT_".');
+                return true;
+              }),
+            ),
+          );
+        },
+      );
 
       test('should throw an exception if name contains invalid chars', () {
         init();
@@ -161,23 +162,24 @@ main() {
       });
 
       test(
-          'should throw an exception if name is "_ROOT_" and a parent is given',
-          () {
-        init();
-        expect(
-          () => GgRouteTreeNode(name: '_ROOT_', parent: root),
-          throwsA(
-            predicate((GgRouteTreeNodeError error) {
-              expect(error.id, 'GRC008503');
-              expect(
-                error.message,
-                'Nodes with name "_ROOT_" are root nodes and must not have a parent.',
-              );
-              return true;
-            }),
-          ),
-        );
-      });
+        'should throw an exception if name is "_ROOT_" and a parent is given',
+        () {
+          init();
+          expect(
+            () => GgRouteTreeNode(name: '_ROOT_', parent: root),
+            throwsA(
+              predicate((GgRouteTreeNodeError error) {
+                expect(error.id, 'GRC008503');
+                expect(
+                  error.message,
+                  'Nodes with name "_ROOT_" are root nodes and must not have a parent.',
+                );
+                return true;
+              }),
+            ),
+          );
+        },
+      );
 
       test('should allow wildcard "*"', () {
         expect(GgRouteTreeNode.isValidName('*'), isTrue);
@@ -225,64 +227,67 @@ main() {
 
     // #########################################################################
     group('widgetIndex', () {
-      test('returns null by default and needs to be initialized by GgRouter',
-          () {
-        init();
-        expect(root.widgetIndex, null);
-        childA0.widgetIndex = 1;
-        expect(childA0.widgetIndex, 1);
-      });
+      test(
+        'returns null by default and needs to be initialized by GgRouter',
+        () {
+          init();
+          expect(root.widgetIndex, null);
+          childA0.widgetIndex = 1;
+          expect(childA0.widgetIndex, 1);
+        },
+      );
     });
 
     // #########################################################################
     group('onChange', () {
       test(
-          'should inform if any parameter in the subtree changes or any node is added, removed or staged',
-          () {
-        fakeAsync((fake) {
-          init();
+        'should inform if any parameter in the subtree changes or any node is added, removed or staged',
+        () {
+          fakeAsync((fake) {
+            init();
 
-          // ..................
-          // Listen to onChange
-          int counter = 0;
-          final s = root.onChange.listen((event) => counter++);
-          checkCounter([int? expected]) {
-            fake.flushMicrotasks();
-            expect(counter, expected ?? 1);
-            counter = 0;
-          }
+            // ..................
+            // Listen to onChange
+            int counter = 0;
+            final s = root.onChange.listen((event) => counter++);
+            checkCounter([int? expected]) {
+              fake.flushMicrotasks();
+              expect(counter, expected ?? 1);
+              counter = 0;
+            }
 
-          // ...............
-          // Add a parameter
-          final param = childC.findOrCreateParam(name: 'a', seed: 10);
-          checkCounter();
+            // ...............
+            // Add a parameter
+            final param = childC.findOrCreateParam(name: 'a', seed: 10);
+            checkCounter();
 
-          // Change a parameter
-          param.value = 11;
-          checkCounter();
+            // Change a parameter
+            param.value = 11;
+            checkCounter();
 
-          // ...........
-          // Add a child
-          final childD = childC.findOrCreateChild('child-d');
-          checkCounter();
+            // ...........
+            // Add a child
+            final childD = childC.findOrCreateChild('child-d');
+            checkCounter();
 
-          // Remove a child
-          childC.removeChild(childD);
-          checkCounter();
+            // Remove a child
+            childC.removeChild(childD);
+            checkCounter();
 
-          // ...........
-          // Stage a child
-          childC.navigateTo('.');
-          checkCounter(2);
+            // ...........
+            // Stage a child
+            childC.navigateTo('.');
+            checkCounter(2);
 
-          childA1.navigateTo('.');
-          checkCounter(2);
+            childA1.navigateTo('.');
+            checkCounter(2);
 
-          // ........
-          // Finalize
-          s.cancel();
-        });
-      });
+            // ........
+            // Finalize
+            s.cancel();
+          });
+        },
+      );
     });
 
     // #########################################################################
@@ -296,88 +301,93 @@ main() {
       });
 
       test(
-          'If isStaged set to true, also all parent nodes should become staged',
-          () {
-        init();
-        childB.navigateTo('.');
-        expect(childB.isStaged, true);
-        expect(root.isStaged, true);
-        expect(childB.isStaged, true);
-        expect(childC.isStaged, false);
-      });
+        'If isStaged set to true, also all parent nodes should become staged',
+        () {
+          init();
+          childB.navigateTo('.');
+          expect(childB.isStaged, true);
+          expect(root.isStaged, true);
+          expect(childB.isStaged, true);
+          expect(childC.isStaged, false);
+        },
+      );
 
       test(
-          'If isStaged set to true, the existing staged child becomes unstaged',
-          () {
-        init();
+        'If isStaged set to true, the existing staged child becomes unstaged',
+        () {
+          init();
 
-        // Initally childA0 is staged
-        childA0.navigateTo('.');
-        expect(childA0.isStaged, true);
-        expect(root.isStaged, true);
-        expect(childA0.isStaged, true);
+          // Initally childA0 is staged
+          childA0.navigateTo('.');
+          expect(childA0.isStaged, true);
+          expect(root.isStaged, true);
+          expect(childA0.isStaged, true);
 
-        // Now we set childA1 to staged
-        childA1.navigateTo('.');
-        expect(childA1.isStaged, true);
+          // Now we set childA1 to staged
+          childA1.navigateTo('.');
+          expect(childA1.isStaged, true);
 
-        // childA0 should not be staged anymore
-        expect(childA0.isStaged, false);
-        expect(childA1.isStaged, true);
-      });
-
-      test('If isStaged is set to false, all child remain staged as before',
-          () {
-        init();
-
-        // Currently the complete path is staged
-        childC.navigateTo('.');
-        expect(root.isStaged, true);
-        expect(childA0.isStaged, true);
-        expect(childB.isStaged, true);
-        expect(childC.isStaged, true);
-
-        // Now we set childA to unstaged
-        childA1.navigateTo('.');
-        expect(childA1.isStaged, true);
-
-        // The parent is still staged
-        expect(root.isStaged, true);
-
-        // childA0 is unstaged
-        expect(childA0.isStaged, false);
-
-        // Children of A0 remain staged
-        expect(childB.isStaged, true);
-        expect(childC.isStaged, true);
-      });
+          // childA0 should not be staged anymore
+          expect(childA0.isStaged, false);
+          expect(childA1.isStaged, true);
+        },
+      );
 
       test(
-          'If isStaged is set to false and then to true, thre previous staged child becomes staged also',
-          () {
-        init();
+        'If isStaged is set to false, all child remain staged as before',
+        () {
+          init();
 
-        // Currently the complete path is staged
-        childC.navigateTo('.');
-        expect(root.isStaged, true);
-        expect(childA0.isStaged, true);
-        expect(childB.isStaged, true);
-        expect(childC.isStaged, true);
+          // Currently the complete path is staged
+          childC.navigateTo('.');
+          expect(root.isStaged, true);
+          expect(childA0.isStaged, true);
+          expect(childB.isStaged, true);
+          expect(childC.isStaged, true);
 
-        // Now we unstage childB
-        childA1.navigateTo('.');
-        expect(childA1.isStaged, true);
-        expect(childA0.isStaged, false);
+          // Now we set childA to unstaged
+          childA1.navigateTo('.');
+          expect(childA1.isStaged, true);
 
-        // Now we stage childB again
-        childB.navigateTo('./_LAST_');
+          // The parent is still staged
+          expect(root.isStaged, true);
 
-        // The previous staged children remain staged
-        expect(root.isStaged, true);
-        expect(childA0.isStaged, true);
-        expect(childB.isStaged, true);
-        expect(childC.isStaged, true);
-      });
+          // childA0 is unstaged
+          expect(childA0.isStaged, false);
+
+          // Children of A0 remain staged
+          expect(childB.isStaged, true);
+          expect(childC.isStaged, true);
+        },
+      );
+
+      test(
+        'If isStaged is set to false and then to true, thre previous staged child becomes staged also',
+        () {
+          init();
+
+          // Currently the complete path is staged
+          childC.navigateTo('.');
+          expect(root.isStaged, true);
+          expect(childA0.isStaged, true);
+          expect(childB.isStaged, true);
+          expect(childC.isStaged, true);
+
+          // Now we unstage childB
+          childA1.navigateTo('.');
+          expect(childA1.isStaged, true);
+          expect(childA0.isStaged, false);
+
+          // Now we stage childB again
+          childB.navigateTo('./_LAST_');
+
+          // The previous staged children remain staged
+          expect(root.isStaged, true);
+          expect(childA0.isStaged, true);
+          expect(childB.isStaged, true);
+          expect(childC.isStaged, true);
+        },
+      );
     });
 
     // #########################################################################
@@ -485,12 +495,13 @@ main() {
     // #########################################################################
     group('child(name)', () {
       test(
-          'should return child with name or null if no child is existing with name',
-          () {
-        init();
-        expect(root.child('child-a0'), childA0);
-        expect(root.child('child-x'), isNull);
-      });
+        'should return child with name or null if no child is existing with name',
+        () {
+          init();
+          expect(root.child('child-a0'), childA0);
+          expect(root.child('child-x'), isNull);
+        },
+      );
     });
 
     // #########################################################################
@@ -538,12 +549,13 @@ main() {
         expect(root.defaultChild, isNull);
       });
       test(
-          'should return null if defaultChildName is set, but no child with defaultChildName was created',
-          () {
-        init();
-        root.defaultChildName = 'defaultChild';
-        expect(root.defaultChild, isNull);
-      });
+        'should return null if defaultChildName is set, but no child with defaultChildName was created',
+        () {
+          init();
+          root.defaultChildName = 'defaultChild';
+          expect(root.defaultChild, isNull);
+        },
+      );
 
       test('should return the defaultChild if one was created before', () {
         init();
@@ -557,8 +569,9 @@ main() {
     group('descendants(path)', () {
       test('should the descendants maching the path', () {
         init();
-        final result =
-            root.descendants(path: ['child-a0', 'child-b', 'child-c']);
+        final result = root.descendants(
+          path: ['child-a0', 'child-b', 'child-c'],
+        );
         expect(result, childC);
       });
 
@@ -648,16 +661,17 @@ main() {
     // #########################################################################
     group('ancestors(path)', () {
       test(
-          'should return all ancestors started with the node itself until root',
-          () {
-        init();
-        final ancestors = childC.ancestors;
-        expect(ancestors.length, 4);
-        expect(ancestors[3], root);
-        expect(ancestors[2], childA0);
-        expect(ancestors[1], childB);
-        expect(ancestors[0], childC);
-      });
+        'should return all ancestors started with the node itself until root',
+        () {
+          init();
+          final ancestors = childC.ancestors;
+          expect(ancestors.length, 4);
+          expect(ancestors[3], root);
+          expect(ancestors[2], childA0);
+          expect(ancestors[1], childB);
+          expect(ancestors[0], childC);
+        },
+      );
     });
 
     // #########################################################################
@@ -688,8 +702,7 @@ main() {
     // #########################################################################
     group('stagedChildDidChange', () {
       group('should return a steam', () {
-        test(
-            'which delivers the child which became staged'
+        test('which delivers the child which became staged'
             ' or null if child became unstaged', () {
           fakeAsync((fake) {
             init();
@@ -734,73 +747,75 @@ main() {
           fake.flushMicrotasks();
 
           // The complete path from root to childB should be staged
-          expect(
-            root.stagedDescendants.map((e) => e.name).toList(),
-            ['child-a0', 'child-b'],
-          );
+          expect(root.stagedDescendants.map((e) => e.name).toList(), [
+            'child-a0',
+            'child-b',
+          ]);
 
           // The complete path from root to childB should be staged
-          expect(
-            root.stagedDescendantsInklSelf.map((e) => e.name).toList(),
-            ['_ROOT_', 'child-a0', 'child-b'],
-          );
+          expect(root.stagedDescendantsInklSelf.map((e) => e.name).toList(), [
+            '_ROOT_',
+            'child-a0',
+            'child-b',
+          ]);
         });
       });
     });
 
-// #########################################################################
+    // #########################################################################
     group('needsFade, fadeInChild, fadeOutChild', () {
       test(
-          'should return true for the first node that became staged or unstaged in a path',
-          () {
-        init();
-        // Navigate to childA1 -> root should be faded in, the others not
-        childA1.navigateTo('.');
-        expect(root.needsFade, true);
-        expect(childA1.needsFade, false);
-        expect(childC.needsFade, false);
-        root.needsFade = false;
-        childA1.needsFade = false;
+        'should return true for the first node that became staged or unstaged in a path',
+        () {
+          init();
+          // Navigate to childA1 -> root should be faded in, the others not
+          childA1.navigateTo('.');
+          expect(root.needsFade, true);
+          expect(childA1.needsFade, false);
+          expect(childC.needsFade, false);
+          root.needsFade = false;
+          childA1.needsFade = false;
 
-        // Navigate to childC
-        // -> childA1 needs to be faded out because it is not staged anymore
-        // -> childA0 needs to be faded in because it is staged now
-        // -> root needs no fade, because it is already active
-        // -> childB and childC need no fade, because they are not the first
-        // nodes that were staged
-        childC.navigateTo('.');
-        expect(childA1.needsFade, true);
-        expect(childA0.needsFade, true);
-        expect(root.childToBeFadedIn, childA0);
-        expect(root.childToBeFadedOut, childA1);
+          // Navigate to childC
+          // -> childA1 needs to be faded out because it is not staged anymore
+          // -> childA0 needs to be faded in because it is staged now
+          // -> root needs no fade, because it is already active
+          // -> childB and childC need no fade, because they are not the first
+          // nodes that were staged
+          childC.navigateTo('.');
+          expect(childA1.needsFade, true);
+          expect(childA0.needsFade, true);
+          expect(root.childToBeFadedIn, childA0);
+          expect(root.childToBeFadedOut, childA1);
 
-        expect(root.needsFade, false);
-        expect(childB.needsFade, false);
-        expect(childC.needsFade, false);
+          expect(root.needsFade, false);
+          expect(childB.needsFade, false);
+          expect(childC.needsFade, false);
 
-        // Navigate from child C down to child B
-        // -> child C should be faded out
-        childC.navigateTo('.');
-        childB.needsFade = false;
-        childC.needsFade = false;
-        childC.navigateTo('..');
-        expect(childC.needsFade, isTrue);
-        expect(childC.isStaged, false);
+          // Navigate from child C down to child B
+          // -> child C should be faded out
+          childC.navigateTo('.');
+          childB.needsFade = false;
+          childC.needsFade = false;
+          childC.navigateTo('..');
+          expect(childC.needsFade, isTrue);
+          expect(childC.isStaged, false);
 
-        // Navigate from child a to root
-        // -> child A should be faded out
-        childA0.navigateTo('.');
-        childA0.needsFade = false;
-        childA0.navigateTo('..');
-        expect(childA0.needsFade, isTrue);
+          // Navigate from child a to root
+          // -> child A should be faded out
+          childA0.navigateTo('.');
+          childA0.needsFade = false;
+          childA0.navigateTo('..');
+          expect(childA0.needsFade, isTrue);
 
-        // Navigate from childA0 -> /
-        // -> child A should be faded out
-        childA0.navigateTo('.');
-        childA0.needsFade = false;
-        childA0.navigateTo('/');
-        expect(childA0.needsFade, isTrue);
-      });
+          // Navigate from childA0 -> /
+          // -> child A should be faded out
+          childA0.navigateTo('.');
+          childA0.needsFade = false;
+          childA0.navigateTo('/');
+          expect(childA0.needsFade, isTrue);
+        },
+      );
     });
 
     // #########################################################################
@@ -818,15 +833,13 @@ main() {
         expect(
           () => root.findOrCreateParam(name: 'a', seed: 'Hello'),
           throwsA(
-            predicate(
-              (ArgumentError e) {
-                expect(
-                  e.message,
-                  'Error while retrieving param with name "a". The existing param has type "int" and not "String".',
-                );
-                return true;
-              },
-            ),
+            predicate((ArgumentError e) {
+              expect(
+                e.message,
+                'Error while retrieving param with name "a". The existing param has type "int" and not "String".',
+              );
+              return true;
+            }),
           ),
         );
 
@@ -841,15 +854,13 @@ main() {
         expect(
           () => root.param<String>('a'),
           throwsA(
-            predicate(
-              (ArgumentError e) {
-                expect(
-                  e.message,
-                  'Error while retrieving param with name "a". The existing param has type "int" and not "String".',
-                );
-                return true;
-              },
-            ),
+            predicate((ArgumentError e) {
+              expect(
+                e.message,
+                'Error while retrieving param with name "a". The existing param has type "int" and not "String".',
+              );
+              return true;
+            }),
           ),
         );
 
@@ -859,15 +870,13 @@ main() {
         expect(
           () => root.findOrCreateParam(name: 'child-a0', seed: 5),
           throwsA(
-            predicate(
-              (GgRouteTreeNodeError e) {
-                expect(
-                  e.message,
-                  'Error: Cannot create param with name "child-a0". There is already a child node with the same name.',
-                );
-                return true;
-              },
-            ),
+            predicate((GgRouteTreeNodeError e) {
+              expect(
+                e.message,
+                'Error: Cannot create param with name "child-a0". There is already a child node with the same name.',
+              );
+              return true;
+            }),
           ),
         );
 
@@ -881,12 +890,13 @@ main() {
     // #########################################################################
     group('ownOrParentParam', () {
       test(
-          'should return the param with name from the node itself or its parents',
-          () {
-        init();
-        childA0.findOrCreateParam(name: 'param', seed: 5);
-        expect(childC.ownOrParentParam('param')!.value, 5);
-      });
+        'should return the param with name from the node itself or its parents',
+        () {
+          init();
+          childA0.findOrCreateParam(name: 'param', seed: 5);
+          expect(childC.ownOrParentParam('param')!.value, 5);
+        },
+      );
     });
 
     // #########################################################################
@@ -981,67 +991,68 @@ main() {
 
     // #########################################################################
     group('onOwnOrChildParamChange', () {
-      test('should trigger every time an own param or an child param changes',
-          () {
-        fakeAsync((fake) {
-          init();
+      test(
+        'should trigger every time an own param or an child param changes',
+        () {
+          fakeAsync((fake) {
+            init();
 
-          int calls0 = 0;
-          int calls1 = 0;
-          resetCalls() {
-            calls0 = 0;
-            calls1 = 0;
-          }
+            int calls0 = 0;
+            int calls1 = 0;
+            resetCalls() {
+              calls0 = 0;
+              calls1 = 0;
+            }
 
-          // Initally the listener should not be called.
-          final s0 = root.onOwnOrChildParamChange.listen((event) => calls0++);
-          final s1 = root.onOwnOrChildParamChange.listen((event) => calls1++);
-          fake.flushMicrotasks();
-          expect(calls0, 0);
-          expect(calls1, 0);
-          resetCalls();
+            // Initally the listener should not be called.
+            final s0 = root.onOwnOrChildParamChange.listen((event) => calls0++);
+            final s1 = root.onOwnOrChildParamChange.listen((event) => calls1++);
+            fake.flushMicrotasks();
+            expect(calls0, 0);
+            expect(calls1, 0);
+            resetCalls();
 
-          // Now lets create a param on one of the children
-          childC.findOrCreateParam(name: 'x', seed: 5);
-          childC.findOrCreateParam(name: 'y', seed: 'Hello');
-          fake.flushMicrotasks();
-          expect(calls0, 1);
-          expect(calls1, 1);
-          resetCalls();
+            // Now lets create a param on one of the children
+            childC.findOrCreateParam(name: 'x', seed: 5);
+            childC.findOrCreateParam(name: 'y', seed: 'Hello');
+            fake.flushMicrotasks();
+            expect(calls0, 1);
+            expect(calls1, 1);
+            resetCalls();
 
-          // Let's change the param on one of the children
-          childC.param('x')!.value++;
-          childC.param('y')!.value = 'movie';
-          fake.flushMicrotasks();
-          expect(calls0, 1);
-          expect(calls1, 1);
-          resetCalls();
+            // Let's change the param on one of the children
+            childC.param('x')!.value++;
+            childC.param('y')!.value = 'movie';
+            fake.flushMicrotasks();
+            expect(calls0, 1);
+            expect(calls1, 1);
+            resetCalls();
 
-          // Let's add another child, and check if changes on the new child's
-          // params are communicated.
-          final newChild = childC.findOrCreateChild('new-child');
-          newChild.findOrCreateParam(name: 'k', seed: 5);
-          fake.flushMicrotasks();
-          expect(calls0, 1);
-          expect(calls1, 1);
-          resetCalls();
-          expect(calls0, 0);
-          expect(calls1, 0);
-          newChild.param('k')!.value++;
-          fake.flushMicrotasks();
-          expect(calls0, 1);
-          expect(calls1, 1);
+            // Let's add another child, and check if changes on the new child's
+            // params are communicated.
+            final newChild = childC.findOrCreateChild('new-child');
+            newChild.findOrCreateParam(name: 'k', seed: 5);
+            fake.flushMicrotasks();
+            expect(calls0, 1);
+            expect(calls1, 1);
+            resetCalls();
+            expect(calls0, 0);
+            expect(calls1, 0);
+            newChild.param('k')!.value++;
+            fake.flushMicrotasks();
+            expect(calls0, 1);
+            expect(calls1, 1);
 
-          s0.cancel();
-          s1.cancel();
-        });
-      });
+            s0.cancel();
+            s1.cancel();
+          });
+        },
+      );
     });
 
     // #########################################################################
     group('get path', () {
-      test(
-          'should return a list of path segments starting with the root and '
+      test('should return a list of path segments starting with the root and '
           'ending with the nodes name itself.', () {
         init();
         expect(root.pathSegments, []);
@@ -1053,8 +1064,7 @@ main() {
 
     // #########################################################################
     group('get pathString', () {
-      test(
-          'should return a list of path segments starting with the root and '
+      test('should return a list of path segments starting with the root and '
           'ending with the nodes name itself.', () {
         init();
         expect(root.path, '/');
@@ -1067,18 +1077,19 @@ main() {
     // #########################################################################
     group('get pathHashCode', () {
       test(
-          'should return a hash which is same for all nodes having the same path ',
-          () {
-        init();
-        expect(root.pathHashCode, root.pathHashCode);
-        expect(root.pathHashCode, isNot(childA0.pathHashCode));
+        'should return a hash which is same for all nodes having the same path ',
+        () {
+          init();
+          expect(root.pathHashCode, root.pathHashCode);
+          expect(root.pathHashCode, isNot(childA0.pathHashCode));
 
-        final root1 = GgRouteTreeNode(name: root.name);
-        expect(root.pathHashCode, root1.pathHashCode);
+          final root1 = GgRouteTreeNode(name: root.name);
+          expect(root.pathHashCode, root1.pathHashCode);
 
-        final childA11 = GgRouteTreeNode(name: childA1.name, parent: root1);
-        expect(childA11.pathHashCode, childA1.pathHashCode);
-      });
+          final childA11 = GgRouteTreeNode(name: childA1.name, parent: root1);
+          expect(childA11.pathHashCode, childA1.pathHashCode);
+        },
+      );
     });
 
     // #########################################################################
@@ -1087,10 +1098,11 @@ main() {
         init();
         childC.navigateTo('.');
         expect(childC.isStaged, true);
-        expect(
-          root.stagedChildPathSegments,
-          ['child-a0', 'child-b', 'child-c'],
-        );
+        expect(root.stagedChildPathSegments, [
+          'child-a0',
+          'child-b',
+          'child-c',
+        ]);
         expect(childA0.stagedChildPathSegments, ['child-b', 'child-c']);
         expect(childB.stagedChildPathSegments, ['child-c']);
         expect(childC.stagedChildPathSegments, []);
@@ -1237,57 +1249,38 @@ main() {
     // #########################################################################
     group('uriParams, uriParamForName, removeUriParamForParam', () {
       test(
-          'should allow to specify default values that are used to initialize route params',
-          () {
-        init();
+        'should allow to specify default values that are used to initialize route params',
+        () {
+          init();
 
-        // Let's set an early seed at the root
-        root.uriParams = {'a': '10', 'b': '20invalid'};
+          // Let's set an early seed at the root
+          root.uriParams = {'a': '10', 'b': '20invalid'};
 
-        // The seed should be avalable on all nodes of the tree
-        expect(
-          childC.uriParamForName(
-            'a',
-          ),
-          '10',
-        );
+          // The seed should be avalable on all nodes of the tree
+          expect(childC.uriParamForName('a'), '10');
 
-        expect(
-          childB.uriParamForName(
-            'a',
-          ),
-          '10',
-        );
+          expect(childB.uriParamForName('a'), '10');
 
-        expect(
-          root.uriParamForName(
-            'a',
-          ),
-          '10',
-        );
+          expect(root.uriParamForName('a'), '10');
 
-        expect(
-          childC.uriParamForName(
-            'b',
-          ),
-          '20invalid',
-        );
+          expect(childC.uriParamForName('b'), '20invalid');
 
-        // Now lets create a paramter a
-        childB.findOrCreateParam(name: 'a', seed: 11);
+          // Now lets create a paramter a
+          childB.findOrCreateParam(name: 'a', seed: 11);
 
-        // The parameter should be initialized with uriParams
-        expect(childB.param('a')?.value, 10);
+          // The parameter should be initialized with uriParams
+          expect(childB.param('a')?.value, 10);
 
-        // Early seed should only be used the first time.
-        // Thus it should be deleted now.
-        expect(root.uriParamForName('a'), null);
+          // Early seed should only be used the first time.
+          // Thus it should be deleted now.
+          expect(root.uriParamForName('a'), null);
 
-        // Now lets create a paramter b
-        // Early seed should be ignored because it has a invalid value (20inavlid).
-        childB.findOrCreateParam(name: 'b', seed: 22);
-        expect(childB.param('b')?.value, 22);
-      });
+          // Now lets create a paramter b
+          // Early seed should be ignored because it has a invalid value (20inavlid).
+          childB.findOrCreateParam(name: 'b', seed: 22);
+          expect(childB.param('b')?.value, 22);
+        },
+      );
     });
 
     // #########################################################################
@@ -1374,21 +1367,23 @@ main() {
         );
       });
 
-      test('should throw an exception if JSON contains an invalid object type',
-          () {
-        expect(
-          () => root.json = '[]',
-          throwsA(
-            predicate((GgRouteTreeNodeError error) {
-              expect(
-                error.message,
-                'Error while reading JSON path "/". Expected object of type Map, but got List<dynamic>.',
-              );
-              return true;
-            }),
-          ),
-        );
-      });
+      test(
+        'should throw an exception if JSON contains an invalid object type',
+        () {
+          expect(
+            () => root.json = '[]',
+            throwsA(
+              predicate((GgRouteTreeNodeError error) {
+                expect(
+                  error.message,
+                  'Error while reading JSON path "/". Expected object of type Map, but got List<dynamic>.',
+                );
+                return true;
+              }),
+            ),
+          );
+        },
+      );
 
       test('should throw an exception when a param has a wrong format', () {
         root.findOrCreateParam(name: 'int', seed: 10);
@@ -1451,26 +1446,28 @@ main() {
         expect(root.param('unknownParam')?.value, 123);
       });
 
-      test('should directly parse json params if parseAllParamsDirectly = true',
-          () {
-        root.parseJson(
-          json: '{"unknownNum": 123}',
-          parseAllParamsDirectly: true,
-        );
-        expect(root.param('unknownNum')?.value, 123);
+      test(
+        'should directly parse json params if parseAllParamsDirectly = true',
+        () {
+          root.parseJson(
+            json: '{"unknownNum": 123}',
+            parseAllParamsDirectly: true,
+          );
+          expect(root.param('unknownNum')?.value, 123);
 
-        root.parseJson(
-          json: '{"unknownBool": true}',
-          parseAllParamsDirectly: true,
-        );
-        expect(root.param('unknownBool')?.value, true);
+          root.parseJson(
+            json: '{"unknownBool": true}',
+            parseAllParamsDirectly: true,
+          );
+          expect(root.param('unknownBool')?.value, true);
 
-        root.parseJson(
-          json: '{"unknownString": "string"}',
-          parseAllParamsDirectly: true,
-        );
-        expect(root.param('unknownString')?.value, 'string');
-      });
+          root.parseJson(
+            json: '{"unknownString": "string"}',
+            parseAllParamsDirectly: true,
+          );
+          expect(root.param('unknownString')?.value, 'string');
+        },
+      );
 
       test('should parse semantic label', () {
         root.json = '{"__semanticLabel": "Semantic Label"}';
@@ -1508,8 +1505,9 @@ main() {
         expect(root.json, expectedJson);
 
         root.json = expectedJson;
-        final parsedGrand =
-            root.findOrCreateChild('child').findOrCreateChild('grand');
+        final parsedGrand = root
+            .findOrCreateChild('child')
+            .findOrCreateChild('grand');
         expect(parsedGrand.param('foo')?.value, parsedFoo);
       });
 
@@ -1550,8 +1548,7 @@ main() {
         dispose();
       });
 
-      test(
-          'should return the the parent label for _INDEX_ routes '
+      test('should return the the parent label for _INDEX_ routes '
           'but only when index route has not semantic label set', () {
         init();
         final index = childA0.findOrCreateChild('_INDEX_');
@@ -1564,15 +1561,17 @@ main() {
 
     // #########################################################################
     group('semanticLabelForPath', () {
-      test('should return the semantic label of the element relative to path',
-          () {
-        init();
-        expect(childC.semanticLabelForPath('.'), childC.name);
-        expect(childC.semanticLabelForPath('..'), childB.name);
-        expect(childC.semanticLabelForPath('/'), root.name);
-        expect(childC.semanticLabelForPath('../../'), childA0.name);
-        dispose();
-      });
+      test(
+        'should return the semantic label of the element relative to path',
+        () {
+          init();
+          expect(childC.semanticLabelForPath('.'), childC.name);
+          expect(childC.semanticLabelForPath('..'), childB.name);
+          expect(childC.semanticLabelForPath('/'), root.name);
+          expect(childC.semanticLabelForPath('../../'), childA0.name);
+          dispose();
+        },
+      );
     });
 
     // #########################################################################

@@ -14,11 +14,7 @@ import 'package:gg_value/gg_value.dart';
 /// An error that is reported when a URI cannot be assigned to a route path
 class GgRouteTreeNodeError extends Error {
   // ...........................................................................
-  GgRouteTreeNodeError({
-    required this.id,
-    required this.message,
-    this.node,
-  });
+  GgRouteTreeNodeError({required this.id, required this.message, this.node});
 
   // ...........................................................................
   final String message;
@@ -93,7 +89,7 @@ class _Params {
 
   // ...........................................................................
   /// Returns true, once dispose was called
-  dispose() {
+  void dispose() {
     for (var element in _dispose.reversed) {
       element();
     }
@@ -121,7 +117,7 @@ class _Params {
 
   // ...........................................................................
   final List<Function()> _dispose = [];
-  _initParams() {
+  void _initParams() {
     _dispose.add(() {
       for (var element in _params.values) {
         element.dispose();
@@ -131,7 +127,7 @@ class _Params {
   }
 
   // ...........................................................................
-  _checkType<T>(GgValue param) {
+  void _checkType<T>(GgValue param) {
     if (param is! GgValue<T>) {
       throw ArgumentError(
         'Error while retrieving param with name "${param.name}". '
@@ -145,19 +141,19 @@ class _Params {
 
   // ...........................................................................
   final _onChange = StreamController<void>.broadcast();
-  _initOnChange() {
+  void _initOnChange() {
     _dispose.add(() => _onChange.close());
   }
 
   // ...........................................................................
-  _listenToChanges(Stream stream) {
+  void _listenToChanges(Stream stream) {
     final s = stream.listen((_) => _onChangeTrigger.trigger());
     _dispose.add(s.cancel);
   }
 
   // ...........................................................................
   late GgOncePerCycle _onChangeTrigger;
-  _initOnChangeTrigger() {
+  void _initOnChangeTrigger() {
     _onChangeTrigger = GgOncePerCycle(
       task: () {
         if (!_onChange.isClosed && _onChange.hasListener) {
@@ -177,10 +173,7 @@ class GgRouteTreeNode {
   // ########################
 
   /// The node's constructor.
-  GgRouteTreeNode({
-    required this.name,
-    this.parent,
-  }) {
+  GgRouteTreeNode({required this.name, this.parent}) {
     _checkConsistency();
     _initOnChange();
     _initParent();
@@ -198,7 +191,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Call this function when the node is about to be disposed.
-  dispose() {
+  void dispose() {
     for (var d in _dispose.reversed) {
       d();
     }
@@ -497,7 +490,8 @@ class GgRouteTreeNode {
     if (hasChild(name: name)) {
       throw GgRouteTreeNodeError(
         id: 'GRC008478',
-        message: 'Error: Cannot create param with name "$name". '
+        message:
+            'Error: Cannot create param with name "$name". '
             'There is already a child node with the same name.',
       );
     }
@@ -748,7 +742,7 @@ class GgRouteTreeNode {
   /// Reads the JSON string and creates routes and  parameters. Parameters that
   /// are not still existing in the route tree are safed in the right nodes for
   /// later use, but only if parseAllParamsDirectly is false.
-  parseJson({required String json, parseAllParamsDirectly = false}) {
+  void parseJson({required String json, parseAllParamsDirectly = false}) {
     late Object object;
     try {
       object = jsonDecode(json);
@@ -812,7 +806,7 @@ class GgRouteTreeNode {
 
   // ########
   // Checks
-  _checkConsistency() {
+  void _checkConsistency() {
     if (isRoot && name != '_ROOT_') {
       throw GgRouteTreeNodeError(
         id: 'GRC008501',
@@ -839,19 +833,16 @@ class GgRouteTreeNode {
 
   // ########
   // parent
-  _initParent() {
+  void _initParent() {
     parent?._children[name] = this;
     parent?._listenToNode(this);
   }
 
   // ...........................................................................
-  _initPath() {
+  void _initPath() {
     pathSegments = parent == null
         ? []
-        : [
-            ...parent!.pathSegments,
-            if (name.isNotEmpty) name,
-          ];
+        : [...parent!.pathSegments, if (name.isNotEmpty) name];
     path = '/${pathSegments.join('/')}';
     pathHashCode = path.hashCode;
   }
@@ -862,7 +853,7 @@ class GgRouteTreeNode {
   // ...........................................................................
   /// Returns a list with the node's children.
   final _children = <String, GgRouteTreeNode>{};
-  _initChildren() {
+  void _initChildren() {
     _dispose.add(() {
       for (var child in List.from(_children.values)) {
         child.dispose();
@@ -872,7 +863,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  _removeChild(child) {
+  void _removeChild(GgRouteTreeNode child) {
     _children.remove(child.name);
   }
 
@@ -881,7 +872,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   final _params = _Params();
-  _initParams() {
+  void _initParams() {
     _dispose.add(() => _params.dispose());
 
     // Inform about parameter changes
@@ -895,7 +886,7 @@ class GgRouteTreeNode {
   final _ownOrChildParamChange = StreamController<void>.broadcast();
   late GgOncePerCycle _triggerOwnOrChildParamChange;
 
-  _initOwnOrChildParamChange() {
+  void _initOwnOrChildParamChange() {
     _dispose.add(() => _ownOrChildParamChange.close());
 
     _triggerOwnOrChildParamChange = GgOncePerCycle(
@@ -907,31 +898,31 @@ class GgRouteTreeNode {
       },
     );
 
-    final s =
-        onOwnParamChange.listen((_) => _triggerOwnOrChildParamChange.trigger());
+    final s = onOwnParamChange.listen(
+      (_) => _triggerOwnOrChildParamChange.trigger(),
+    );
     _dispose.add(() => s.cancel);
   }
 
   // ...........................................................................
   final Map<GgRouteTreeNode, StreamSubscription> _subscriptions = {};
-  _initSubscriptions() {
-    _dispose.add(
-      () {
-        for (var element in _subscriptions.values) {
-          element.cancel();
-        }
-      },
+  void _initSubscriptions() {
+    _dispose.add(() {
+      for (var element in _subscriptions.values) {
+        element.cancel();
+      }
+    });
+  }
+
+  // ...........................................................................
+  void _listenToNode(GgRouteTreeNode node) {
+    _subscriptions[node] = node.onOwnOrChildParamChange.listen(
+      (event) => _triggerOwnOrChildParamChange.trigger(),
     );
   }
 
   // ...........................................................................
-  _listenToNode(GgRouteTreeNode node) {
-    _subscriptions[node] = node.onOwnOrChildParamChange
-        .listen((event) => _triggerOwnOrChildParamChange.trigger());
-  }
-
-  // ...........................................................................
-  _unlistenNode(GgRouteTreeNode node) {
+  void _unlistenNode(GgRouteTreeNode node) {
     _subscriptions[node]!.cancel();
     _subscriptions.remove(node);
   }
@@ -962,7 +953,7 @@ class GgRouteTreeNode {
   late GgOncePerCycle _onChangeTrigger;
 
   // ...........................................................................
-  _initOnChange() {
+  void _initOnChange() {
     _dispose.add(_onChange.close);
     _onChangeTrigger = GgOncePerCycle(
       task: () {
@@ -976,7 +967,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  _reportChange() {
+  void _reportChange() {
     _onChangeTrigger.trigger();
     parent?._reportChange();
   }
@@ -988,7 +979,7 @@ class GgRouteTreeNode {
   final _isStaged = GgValue(seed: false);
 
   // ...........................................................................
-  _initIsStaged() {
+  void _initIsStaged() {
     _dispose.add(() {
       if (isStaged) {
         _setIsStaged(false);
@@ -998,7 +989,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  _setIsStaged(bool b) {
+  void _setIsStaged(bool b) {
     _isStaged.value = b;
 
     if (b && parent?._stagedChild.value != this) {
@@ -1015,7 +1006,7 @@ class GgRouteTreeNode {
   // ...........................................................................
   final _stagedChild = GgValue<GgRouteTreeNode?>(seed: null);
 
-  _initStagedChild() {
+  void _initStagedChild() {
     _dispose.add(() {
       _stagedChild.dispose();
 
@@ -1038,7 +1029,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  _navigateTo(String path) {
+  void _navigateTo(String path) {
     path = path.replaceAll('_INDEX_/', '').replaceAll('/_INDEX_', '');
 
     final pathComponents = path == '/' ? <String>[] : path.split('/');
@@ -1160,11 +1151,5 @@ class GgRouteTreeNode {
 
 // #############################################################################
 /// Creates an lite route sample node.
-GgRouteTreeNode exampleRouteNode({
-  String? name,
-  GgRouteTreeNode? parent,
-}) =>
-    GgRouteTreeNode(
-      name: name ?? '_ROOT_',
-      parent: parent,
-    );
+GgRouteTreeNode exampleRouteNode({String? name, GgRouteTreeNode? parent}) =>
+    GgRouteTreeNode(name: name ?? '_ROOT_', parent: parent);

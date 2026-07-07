@@ -10,7 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 
-main() {
+void main() {
   group('GgNavigationPage', () {
     // .........................................................................
     GgNavigationPage otherNavigationPage() {
@@ -24,53 +24,52 @@ main() {
 
     // .........................................................................
     testWidgets(
-        'should throw an exception when index route shows a navigation page',
-        (WidgetTester tester) async {
-      // Create a navigation page using that router
-      final navPage = GgNavigationPageRoot(
-        child: GgNavigationPage(
-          pageContent: (_) => otherNavigationPage(),
-        ),
-      );
+      'should throw an exception when index route shows a navigation page',
+      (WidgetTester tester) async {
+        // Create a navigation page using that router
+        final navPage = GgNavigationPageRoot(
+          child: GgNavigationPage(pageContent: (_) => otherNavigationPage()),
+        );
 
-      // An error should be thrown complaining about index child being
-      // an navigation page
-      await tester.pumpWidget(
-        GgRouter.root(child: navPage, node: GgRouteTreeNode.newRoot()),
-      );
-      final exception = tester.takeException();
-      expect(
-        exception.message,
-        GgNavigationPage.indexWidgetMustNotBeANavigationPage,
-      );
-    });
+        // An error should be thrown complaining about index child being
+        // an navigation page
+        await tester.pumpWidget(
+          GgRouter.root(child: navPage, node: GgRouteTreeNode.newRoot()),
+        );
+        final exception = tester.takeException();
+        expect(
+          exception.message,
+          GgNavigationPage.indexWidgetMustNotBeANavigationPage,
+        );
+      },
+    );
 
     // .........................................................................
     testWidgets(
-        'should throw an exception when GgNavigationPage is not wrapped into a root',
-        (WidgetTester tester) async {
-      // Create a navigation page using that router
-      final navPage = GgNavigationPage(
-        pageContent: (_) => otherNavigationPage(),
-      );
+      'should throw an exception when GgNavigationPage is not wrapped into a root',
+      (WidgetTester tester) async {
+        // Create a navigation page using that router
+        final navPage = GgNavigationPage(
+          pageContent: (_) => otherNavigationPage(),
+        );
 
-      // An error should be thrown complaining about index child being
-      // an navigation page
-      await tester.pumpWidget(
-        GgRouter.root(child: navPage, node: GgRouteTreeNode.newRoot()),
-      );
-      final exception = tester.takeException();
-      expect(exception.message, GgNavigationPage.noNavigationPageRootFound);
-    });
+        // An error should be thrown complaining about index child being
+        // an navigation page
+        await tester.pumpWidget(
+          GgRouter.root(child: navPage, node: GgRouteTreeNode.newRoot()),
+        );
+        final exception = tester.takeException();
+        expect(exception.message, GgNavigationPage.noNavigationPageRootFound);
+      },
+    );
 
     // .........................................................................
-    testWidgets('should decorate the index page with a navigation bar',
-        (WidgetTester tester) async {
+    testWidgets('should decorate the index page with a navigation bar', (
+      WidgetTester tester,
+    ) async {
       // Create a navigation page using that router
       final navPage = GgNavigationPageRoot(
-        child: GgNavigationPage(
-          pageContent: (_) => Container(),
-        ),
+        child: GgNavigationPage(pageContent: (_) => Container()),
       );
 
       // Expect the container to be decorated with a navigation bar
@@ -88,78 +87,80 @@ main() {
 
     // .........................................................................
     testWidgets(
-        'should take over inAnimation, outAnimation and animationDuration froom root',
-        (WidgetTester tester) async {
-      // Define animationDuration, inAnimation, outAnimation
-      const animationDuration = Duration(milliseconds: 345);
+      'should take over inAnimation, outAnimation and animationDuration froom root',
+      (WidgetTester tester) async {
+        // Define animationDuration, inAnimation, outAnimation
+        const animationDuration = Duration(milliseconds: 345);
 
-      Widget inAnimation(
-        BuildContext context,
-        Animation animation,
-        Widget child,
-        Size size,
-      ) {
-        return child;
-      }
+        Widget inAnimation(
+          BuildContext context,
+          Animation animation,
+          Widget child,
+          Size size,
+        ) {
+          return child;
+        }
 
-      Widget outAnimation(
-        BuildContext context,
-        Animation animation,
-        Widget child,
-        Size size,
-      ) {
-        return child;
-      }
+        Widget outAnimation(
+          BuildContext context,
+          Animation animation,
+          Widget child,
+          Size size,
+        ) {
+          return child;
+        }
 
-      // Create a widget
-      final rootNode = GgRouteTreeNode.newRoot();
-      final contentKey = GlobalKey();
+        // Create a widget
+        final rootNode = GgRouteTreeNode.newRoot();
+        final contentKey = GlobalKey();
 
-      await tester.pumpWidget(
-        Directionality(
-          textDirection: TextDirection.ltr,
-          child: GgRouter.root(
-            node: rootNode,
-            child: GgNavigationPageRoot(
-              child: GgNavigationPage(
-                pageContent: (_) => Container(),
-                children: {
-                  'childA': GgNavigationPage(
-                    pageContent: (_) => Container(key: contentKey),
-                  ),
-                },
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: GgRouter.root(
+              node: rootNode,
+              child: GgNavigationPageRoot(
+                child: GgNavigationPage(
+                  pageContent: (_) => Container(),
+                  children: {
+                    'childA': GgNavigationPage(
+                      pageContent: (_) => Container(key: contentKey),
+                    ),
+                  },
+                ),
+                animationDuration: animationDuration,
+                inAnimation: inAnimation,
+                outAnimation: outAnimation,
               ),
-              animationDuration: animationDuration,
-              inAnimation: inAnimation,
-              outAnimation: outAnimation,
             ),
           ),
-        ),
-      );
+        );
 
-      rootNode.navigateTo('/childA');
-      await tester.pumpAndSettle();
+        rootNode.navigateTo('/childA');
+        await tester.pumpAndSettle();
 
-      // Find the child page
-      final routerFinder = find.byType(GgRouter);
-      expect(routerFinder, findsNWidgets(3));
+        // Find the child page
+        final routerFinder = find.byType(GgRouter);
+        expect(routerFinder, findsNWidgets(3));
 
-      final router1 = tester.widget<GgRouter>(routerFinder.at(1));
-      final router2 = tester.widget<GgRouter>(routerFinder.at(2));
+        final router1 = tester.widget<GgRouter>(routerFinder.at(1));
+        final router2 = tester.widget<GgRouter>(routerFinder.at(2));
 
-      // Check if child page has taken over animation values from root
+        // Check if child page has taken over animation values from root
 
-      expect(router1.animationDuration, animationDuration);
-      expect(router1.inAnimation, inAnimation);
-      expect(router1.outAnimation, outAnimation);
+        expect(router1.animationDuration, animationDuration);
+        expect(router1.inAnimation, inAnimation);
+        expect(router1.outAnimation, outAnimation);
 
-      expect(router2.animationDuration, animationDuration);
-      expect(router2.inAnimation, inAnimation);
-      expect(router2.outAnimation, outAnimation);
-    });
+        expect(router2.animationDuration, animationDuration);
+        expect(router2.inAnimation, inAnimation);
+        expect(router2.outAnimation, outAnimation);
+      },
+    );
 
-    testWidgets('should show the route\'s semantic label as title',
-        (WidgetTester tester) async {
+    testWidgets('should show the route\'s semantic label as title', (
+      WidgetTester tester,
+    ) async {
       final root = GgRouteTreeNode.newRoot();
 
       // .........................................
@@ -172,13 +173,13 @@ main() {
             child: GgRouter(
               {
                 'child0': (_) => GgNavigationPageRoot(
-                      child: GgNavigationPage(
-                        pageContent: (_) => Container(),
-                        children: const {},
-                        showBackButton: false,
-                      ),
-                      key: GlobalKey(),
-                    ),
+                  child: GgNavigationPage(
+                    pageContent: (_) => Container(),
+                    children: const {},
+                    showBackButton: false,
+                  ),
+                  key: GlobalKey(),
+                ),
               },
               defaultRoute: 'child0',
               semanticLabels: const {'child0': 'Child 0 Page'},
@@ -197,8 +198,10 @@ main() {
       // Check if the semantic label is shown on the top
       final titleFinder = find.byKey(const ValueKey('GgNavigationPageTitle'));
       expect(titleFinder, findsOneWidget);
-      final textFinder =
-          find.descendant(of: titleFinder, matching: find.byType(Text));
+      final textFinder = find.descendant(
+        of: titleFinder,
+        matching: find.byType(Text),
+      );
       expect(textFinder, findsOneWidget);
       Text text = tester.widget(textFinder);
       expect(text.data, 'Child 0 Page');
@@ -221,15 +224,15 @@ main() {
             child: GgRouter(
               {
                 'rootPage': (_) => GgNavigationPageRoot(
-                      child: GgNavigationPage(
-                        pageContent: (_) => Container(),
-                        showBackButton: false,
-                      ),
-                      key: GlobalKey(),
-                      navigationBarBackButton: (_) => customizedBackButton,
-                      navigationBarCloseButton: (_) => customizedCloseButton,
-                      navigationBarTitle: (_) => customizedTitle,
-                    ),
+                  child: GgNavigationPage(
+                    pageContent: (_) => Container(),
+                    showBackButton: false,
+                  ),
+                  key: GlobalKey(),
+                  navigationBarBackButton: (_) => customizedBackButton,
+                  navigationBarCloseButton: (_) => customizedCloseButton,
+                  navigationBarTitle: (_) => customizedTitle,
+                ),
               },
               defaultRoute: 'rootPage',
               key: GlobalKey(),
@@ -245,62 +248,64 @@ main() {
       expect(find.byWidget(customizedTitle), findsOneWidget);
     });
 
-    testWidgets('should allow to customize back button, title and close button',
-        (tester) async {
-      final root = GgRouteTreeNode.newRoot();
+    testWidgets(
+      'should allow to customize back button, title and close button',
+      (tester) async {
+        final root = GgRouteTreeNode.newRoot();
 
-      const customizedBackButton = Text('Back');
-      const customizedCloseButton = Text('Close');
-      const customizedTitle = Text('Title');
+        const customizedBackButton = Text('Back');
+        const customizedCloseButton = Text('Close');
+        const customizedTitle = Text('Title');
 
-      // .........................................
-      // Create a widget with customized app bar
-      await tester.pumpWidget(
-        Directionality(
-          textDirection: TextDirection.ltr,
-          child: GgRouter.root(
-            node: root,
-            child: GgRouter(
-              {
-                'child': (_) => GgNavigationPageRoot(
-                      child: GgNavigationPage(
-                        pageContent: (_) => Container(),
-                        children: {
-                          'grandchild': GgNavigationPage(
-                            pageContent: (_) => Container(),
-                          ),
-                        },
-                      ),
-                      key: GlobalKey(),
-                      navigationBarBackButton: (_) => customizedBackButton,
-                      navigationBarCloseButton: (_) => customizedCloseButton,
-                      navigationBarTitle: (_) => customizedTitle,
+        // .........................................
+        // Create a widget with customized app bar
+        await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: GgRouter.root(
+              node: root,
+              child: GgRouter(
+                {
+                  'child': (_) => GgNavigationPageRoot(
+                    child: GgNavigationPage(
+                      pageContent: (_) => Container(),
+                      children: {
+                        'grandchild': GgNavigationPage(
+                          pageContent: (_) => Container(),
+                        ),
+                      },
                     ),
-              },
-              defaultRoute: 'child',
-              semanticLabels: const {'child': 'Child Page'},
-              key: GlobalKey(),
+                    key: GlobalKey(),
+                    navigationBarBackButton: (_) => customizedBackButton,
+                    navigationBarCloseButton: (_) => customizedCloseButton,
+                    navigationBarTitle: (_) => customizedTitle,
+                  ),
+                },
+                defaultRoute: 'child',
+                semanticLabels: const {'child': 'Child Page'},
+                key: GlobalKey(),
+              ),
             ),
           ),
-        ),
-      );
+        );
 
-      root.navigateTo('child/grandchild');
-      await tester.pumpAndSettle();
+        root.navigateTo('child/grandchild');
+        await tester.pumpAndSettle();
 
-      // ...................................
-      // Test if customized buttons are used
-      expect(find.byWidget(customizedBackButton), findsOneWidget);
-      expect(find.byWidget(customizedCloseButton), findsOneWidget);
-      expect(find.byWidget(customizedTitle), findsOneWidget);
-    });
+        // ...................................
+        // Test if customized buttons are used
+        expect(find.byWidget(customizedBackButton), findsOneWidget);
+        expect(find.byWidget(customizedCloseButton), findsOneWidget);
+        expect(find.byWidget(customizedTitle), findsOneWidget);
+      },
+    );
 
     // .........................................................................
-    testWidgets(
-        'should call "onShow" if page is visited, '
+    testWidgets('should call "onShow" if page is visited, '
         'should call "onNavigateToParent" if page navigates to parent, '
-        'should call "onNavigateToChild" if page navigates to child, ',
-        (WidgetTester tester) async {
+        'should call "onNavigateToChild" if page navigates to child, ', (
+      WidgetTester tester,
+    ) async {
       var onShowCalled = false;
       var onNavigateToParentCalled = false;
       String onNavigateToChildCalled = '';
@@ -324,9 +329,7 @@ main() {
           key: selfKey,
           showBackButton: true,
           pageContent: (_) => Container(),
-          children: {
-            'child': child(),
-          },
+          children: {'child': child()},
           onShow: () => onShowCalled = true,
           onNavigateToChild: (c) => onNavigateToChildCalled = c,
           onNavigateToParent: () => onNavigateToParentCalled = true,
@@ -342,17 +345,13 @@ main() {
           key: parentKey,
           showBackButton: true,
           pageContent: (_) => Container(),
-          children: {
-            'self': self(),
-          },
+          children: {'self': self()},
         );
 
         return result;
       }
 
-      final root = GgNavigationPageRoot(
-        child: parent(),
-      );
+      final root = GgNavigationPageRoot(child: parent());
 
       // Crate a root node
       final rootNode = GgRouteTreeNode.newRoot();
@@ -437,8 +436,9 @@ main() {
 
     // #########################################################################
     group('should show no back button and no close button when', () {
-      testWidgets('if showBackButton and showCloseButton are false',
-          (tester) async {
+      testWidgets('if showBackButton and showCloseButton are false', (
+        tester,
+      ) async {
         // Create a parent page
         const parentKey = Key('parent');
         GgNavigationPage parent() {
@@ -447,18 +447,14 @@ main() {
             showBackButton: false,
             showCloseButton: false,
             pageContent: (_) => Container(),
-            children: {
-              'self': Container(),
-            },
+            children: {'self': Container()},
           );
 
           return result;
         }
 
         // Create a root page
-        final root = GgNavigationPageRoot(
-          child: parent(),
-        );
+        final root = GgNavigationPageRoot(child: parent());
 
         // Crate a root node
         final rootNode = GgRouteTreeNode.newRoot();
@@ -488,8 +484,9 @@ main() {
 
     // #########################################################################
     group('should show a back button and a close button when', () {
-      testWidgets('if showBackButton and showCloseButton are true',
-          (tester) async {
+      testWidgets('if showBackButton and showCloseButton are true', (
+        tester,
+      ) async {
         // Create a parent page
         const parentKey = Key('parent');
         GgNavigationPage parent() {
@@ -498,18 +495,14 @@ main() {
             showBackButton: true,
             showCloseButton: true,
             pageContent: (_) => Container(),
-            children: {
-              'self': Container(),
-            },
+            children: {'self': Container()},
           );
 
           return result;
         }
 
         // Create a root page
-        final root = GgNavigationPageRoot(
-          child: parent(),
-        );
+        final root = GgNavigationPageRoot(child: parent());
 
         // Crate a root node
         final rootNode = GgRouteTreeNode.newRoot();
@@ -557,33 +550,32 @@ main() {
     });
 
     // .........................................................................
-    testWidgets(
-      'should throw if children contain an _INDEX_route',
-      (WidgetTester tester) async {
-        final node = GgRouteTreeNode.newRoot().findOrCreateChild('node');
+    testWidgets('should throw if children contain an _INDEX_route', (
+      WidgetTester tester,
+    ) async {
+      final node = GgRouteTreeNode.newRoot().findOrCreateChild('node');
 
-        expect(
-          () async => await tester.pumpWidget(
-            Directionality(
-              textDirection: TextDirection.ltr,
-              child: GgRouter.root(
-                node: node,
-                child: GgNavigationPageRoot(
-                  child: GgNavigationPage(
-                    pageContent: (_) => Container(),
-                    children: {
-                      '_INDEX_': GgNavigationPage(
-                        pageContent: (_) => const SizedBox(),
-                      ),
-                    },
-                  ),
+      expect(
+        () async => await tester.pumpWidget(
+          Directionality(
+            textDirection: TextDirection.ltr,
+            child: GgRouter.root(
+              node: node,
+              child: GgNavigationPageRoot(
+                child: GgNavigationPage(
+                  pageContent: (_) => Container(),
+                  children: {
+                    '_INDEX_': GgNavigationPage(
+                      pageContent: (_) => const SizedBox(),
+                    ),
+                  },
                 ),
               ),
             ),
           ),
-          throwsArgumentError,
-        );
-      },
-    );
+        ),
+        throwsArgumentError,
+      );
+    });
   });
 }

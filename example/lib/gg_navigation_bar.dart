@@ -10,13 +10,13 @@ import 'package:flutter/widgets.dart';
 
 class GgNavigationBar extends StatelessWidget {
   const GgNavigationBar({
-    Key? key,
+    super.key,
     this.closeRoute = '/',
     this.backRoute = '../_INDEX_',
     this.title,
     this.showCloseButton = true,
     this.showBackButton = true,
-  }) : super(key: key);
+  });
   final String closeRoute;
   final String backRoute;
   final bool showCloseButton;

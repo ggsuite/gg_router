@@ -53,7 +53,7 @@ class GgNavigationPage extends StatefulWidget {
   final void Function(String childRoute)? onNavigateToChild;
 
   // ...........................................................................
-  static _checkChildren(Map<String, Widget>? children) {
+  static void _checkChildren(Map<String, Widget>? children) {
     if (children?.containsKey('_INDEX_') == true) {
       throw ArgumentError(indexWidgetMustNotBeANavigationPage);
     }
@@ -124,9 +124,11 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
 
   // ...........................................................................
   GgNavigationPageRoot _root(BuildContext context) {
-    final GgNavigationPageRoot? root = (widget is GgNavigationPageRoot)
-        ? widget as GgNavigationPageRoot // coverage:ignore-line
-        : GgNavigationPageRoot.of(context);
+    if (widget is GgNavigationPageRoot) {
+      return widget as GgNavigationPageRoot; // coverage:ignore-line
+    }
+
+    final root = GgNavigationPageRoot.of(context);
 
     if (root == null) {
       throw ArgumentError(GgNavigationPage.noNavigationPageRootFound);
@@ -142,19 +144,17 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
       throw ArgumentError(GgNavigationPage.indexWidgetMustNotBeANavigationPage);
     }
     GgPageWithNavBar result(_) => GgPageWithNavBar(
-          content: content,
-          showBackButton: widget.showBackButton,
-          showCloseButton: widget.showCloseButton,
-        );
+      content: content,
+      showBackButton: widget.showBackButton,
+      showCloseButton: widget.showCloseButton,
+    );
 
     return result;
   }
 
   // ...........................................................................
   Map<String, WidgetBuilder> _generateChildren(BuildContext context) {
-    final Map<String, WidgetBuilder> result = {
-      '_INDEX_': _indexPage(context),
-    };
+    final Map<String, WidgetBuilder> result = {'_INDEX_': _indexPage(context)};
 
     widget.children?.forEach((key, value) {
       result[key] = (_) => value;
@@ -209,29 +209,23 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
 
     // ....................
     // Observe "onIsStaged"
-    ownNode.parent?.onIsStaged.listen(
-      (isStaged) {
-        _onIsStaged(ownNode);
-      },
-    );
+    ownNode.parent?.onIsStaged.listen((isStaged) {
+      _onIsStaged(ownNode);
+    });
     _onIsStaged(ownNode);
 
     // ..............................
     // Observe "stagedChildDidChange"
-    ownNode.stagedChildDidChange.listen(
-      (stagedChild) {
-        _onStagedChildDidChange(ownNode);
-      },
-    );
+    ownNode.stagedChildDidChange.listen((stagedChild) {
+      _onStagedChildDidChange(ownNode);
+    });
 
     _onStagedChildDidChange(ownNode);
 
     // On dispose, make sure "didNavigateToParent" is called.
-    _dispose.add(
-      () {
-        _callOnNavigateToParent();
-      },
-    );
+    _dispose.add(() {
+      _callOnNavigateToParent();
+    });
   }
 }
 
@@ -308,19 +302,14 @@ class GgPageWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        content,
-        _navigationBar(context),
-      ],
-    );
+    return Stack(children: [content, _navigationBar(context)]);
   }
 
   // ...........................................................................
   Widget _navigationBar(BuildContext context) {
     // Get root navigation page state
-    final rootState =
-        context.findAncestorStateOfType<GgNavigationPageRootState>();
+    final rootState = context
+        .findAncestorStateOfType<GgNavigationPageRootState>();
 
     final rootPage = GgNavigationPageRoot.of(context)!;
 
@@ -343,17 +332,17 @@ class GgPageWithNavBar extends StatelessWidget {
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
                   onTapUp: (_) => ownNode.navigateTo('../'),
-                  child: rootPage.navigationBarBackButton?.call(context) ??
+                  child:
+                      rootPage.navigationBarBackButton?.call(context) ??
                       const Text('Back'),
                 ),
               ),
             const Spacer(),
             Container(
               key: const ValueKey('GgNavigationPageTitle'),
-              child: rootPage.navigationBarTitle?.call(context) ??
-                  Text(
-                    ownNode.semanticLabel,
-                  ),
+              child:
+                  rootPage.navigationBarTitle?.call(context) ??
+                  Text(ownNode.semanticLabel),
             ),
             const Spacer(),
             if (showCloseButton)
@@ -363,7 +352,8 @@ class GgPageWithNavBar extends StatelessWidget {
                 child: GestureDetector(
                   // This behavior might not be wanted:
                   onTapUp: (_) => rootNode.navigateTo('../'),
-                  child: rootPage.navigationBarCloseButton?.call(context) ??
+                  child:
+                      rootPage.navigationBarCloseButton?.call(context) ??
                       const Text('Close'),
                 ),
               ),

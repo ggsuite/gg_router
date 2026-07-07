@@ -5,21 +5,21 @@ version: 3.1.9
 repository: https://github.com/inlavigo/gg_router
 
 environment:
-  sdk: ">=3.3.0<4.0.0"
-  flutter: ">=3.16.0"
+  sdk: ">=3.12.2 <4.0.0"
+  flutter: ">=3.44.4"
 
 dependencies:
   flutter:
     sdk: flutter
   flutter_web_plugins:
     sdk: flutter
-  gg_value: ^1.3.6+4
-  gg_once_per_cycle: ^1.1.0
+  gg_value: ^1.6.3
+  gg_once_per_cycle: ^1.3.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  fake_async: ^1.1.0
-  gg_easy_widget_test: ^1.0.1
-  lints: ^4.0.0
-  args: ^2.4.2
+  fake_async: ^1.3.3
+  gg_easy_widget_test: ^1.1.6
+  lints: ^6.1.0
+  args: ^2.7.0

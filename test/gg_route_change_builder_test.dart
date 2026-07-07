@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 
-main() {
+void main() {
   group('GgRouteChangeBuilder', () {
     // .........................................................................
     late GgEasyWidgetTest<GgRouteChangeBuilder, dynamic> ggRouteChangeBuilder;
@@ -45,8 +45,9 @@ main() {
     }
 
     // .........................................................................
-    testWidgets('should be instantiated correctly',
-        (WidgetTester tester) async {
+    testWidgets('should be instantiated correctly', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
 
       // ....................

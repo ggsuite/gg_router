@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
 
-main() {
+void main() {
   group('GgRouteParams', () {
     // .........................................................................
     final key = GlobalKey(debugLabel: 'GgRouteParams');
@@ -50,8 +50,9 @@ main() {
     }
 
     // .........................................................................
-    testWidgets('should write the params into node',
-        (WidgetTester tester) async {
+    testWidgets('should write the params into node', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
       expect(rootNode.param(paramName)?.value, paramSeed);
       expect(rootNode.param(paramName1)?.value, paramSeed1);
@@ -60,23 +61,25 @@ main() {
 
     // .........................................................................
     testWidgets(
-        'should throw an exception if a parameter is used multiple times in the same route.',
-        (WidgetTester tester) async {
-      await setUp(
-        tester,
-        child: GgRouteParams(
-          params: {'a': GgRouteParam(seed: 5)},
-          child: Container(),
-        ),
-      );
+      'should throw an exception if a parameter is used multiple times in the same route.',
+      (WidgetTester tester) async {
+        await setUp(
+          tester,
+          child: GgRouteParams(
+            params: {'a': GgRouteParam(seed: 5)},
+            child: Container(),
+          ),
+        );
 
-      expect(
+        expect(
           tester.takeException().message,
           'Cannot process route param "a". '
           'There is already a parent GgRouteParams object, containing a route param with the name "a". '
-          'Make sure you are using unique param names accross a route and its parents.');
+          'Make sure you are using unique param names accross a route and its parents.',
+        );
 
-      await tearDown(tester);
-    });
+        await tearDown(tester);
+      },
+    );
   });
 }

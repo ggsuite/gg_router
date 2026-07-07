@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/gg_router.dart';
 
-main() {
+void main() {
   group('GgRouterDelegate', () {
     // .........................................................................
     late GgRouterDelegate routerDelegate;
@@ -29,14 +29,13 @@ main() {
     }) async {
       GgRouteParams Function(BuildContext context) builder(
         Map<String, GgRouteParam> params,
-      ) =>
-          (BuildContext context) {
-            router = GgRouter.of(context);
-            return GgRouteParams(
-              child: Container(key: const ValueKey('content')),
-              params: params,
-            );
-          };
+      ) => (BuildContext context) {
+        router = GgRouter.of(context);
+        return GgRouteParams(
+          child: Container(key: const ValueKey('content')),
+          params: params,
+        );
+      };
 
       final paramsA = GgRouteParam(seed: 5);
       final paramsB = GgRouteParam(seed: 6);
@@ -45,8 +44,10 @@ main() {
         {
           'routeA': builder({'a': paramsA}),
           'routeB': builder({'b': paramsB}),
-          'routeC':
-              builder({'c': GgRouteParam(seed: 7), 'd': GgRouteParam(seed: 8)}),
+          'routeC': builder({
+            'c': GgRouteParam(seed: 7),
+            'd': GgRouteParam(seed: 8),
+          }),
         },
         defaultRoute: 'routeA',
         key: const ValueKey('router'),
@@ -70,8 +71,9 @@ main() {
     }
 
     // .........................................................................
-    testWidgets('should take "root" as root node when not null',
-        (WidgetTester tester) async {
+    testWidgets('should take "root" as root node when not null', (
+      WidgetTester tester,
+    ) async {
       final root = GgRouteTreeNode.newRoot();
       final delegate = GgRouterDelegate(child: Container(), root: root);
       expect(delegate.root, root);
@@ -79,34 +81,36 @@ main() {
 
     // .........................................................................
     testWidgets(
-        'should apply "defaultRoute" when a root node is given and the staged child is "/"',
-        (WidgetTester tester) async {
-      final root = GgRouteTreeNode.newRoot();
-      expect(root.stagedChildPath, '');
-      final delegate = GgRouterDelegate(
-        child: Container(),
-        root: root,
-        defaultRoute: 'hello',
-      );
-      expect(delegate.root, root);
-      expect(root.stagedChild!.path, '/hello');
-    });
+      'should apply "defaultRoute" when a root node is given and the staged child is "/"',
+      (WidgetTester tester) async {
+        final root = GgRouteTreeNode.newRoot();
+        expect(root.stagedChildPath, '');
+        final delegate = GgRouterDelegate(
+          child: Container(),
+          root: root,
+          defaultRoute: 'hello',
+        );
+        expect(delegate.root, root);
+        expect(root.stagedChild!.path, '/hello');
+      },
+    );
 
     // .........................................................................
     testWidgets(
-        'should not apply "defaultRoute" when a root node is given and the staged child is "/something"',
-        (WidgetTester tester) async {
-      final root = GgRouteTreeNode.newRoot();
-      root.navigateTo('/something');
-      expect(root.stagedChildPath, 'something');
-      final delegate = GgRouterDelegate(
-        child: Container(),
-        root: root,
-        defaultRoute: 'hello',
-      );
-      expect(delegate.root, root);
-      expect(root.stagedChild!.path, '/something');
-    });
+      'should not apply "defaultRoute" when a root node is given and the staged child is "/something"',
+      (WidgetTester tester) async {
+        final root = GgRouteTreeNode.newRoot();
+        root.navigateTo('/something');
+        expect(root.stagedChildPath, 'something');
+        final delegate = GgRouterDelegate(
+          child: Container(),
+          root: root,
+          defaultRoute: 'hello',
+        );
+        expect(delegate.root, root);
+        expect(root.stagedChild!.path, '/something');
+      },
+    );
 
     // .........................................................................
     testWidgets('should work correctly', (WidgetTester tester) async {
@@ -127,23 +131,26 @@ main() {
       // ........................................................
       // Set an initial route configuration with a null location.
       // => no routing should happen
-      var result = routerDelegate
-          .setInitialRoutePath(RouteInformation(uri: Uri.parse('')));
+      var result = routerDelegate.setInitialRoutePath(
+        RouteInformation(uri: Uri.parse('')),
+      );
       expect(result, isInstanceOf<Future<void>>());
       await result;
 
       // ........................................................
       // Navigate to the root route. This should also lead to no navigation.
       // The app will navigate to the last saved state.
-      result = routerDelegate
-          .setInitialRoutePath(RouteInformation(uri: Uri.parse('/')));
+      result = routerDelegate.setInitialRoutePath(
+        RouteInformation(uri: Uri.parse('/')),
+      );
       expect(result, isInstanceOf<Future<void>>());
       await result;
 
       // ...........................................
       // Should provide the RouteInformation for the currently set path
-      result = routerDelegate
-          .setInitialRoutePath(RouteInformation(uri: Uri.parse('/routeC')));
+      result = routerDelegate.setInitialRoutePath(
+        RouteInformation(uri: Uri.parse('/routeC')),
+      );
       await tester.pumpAndSettle();
       expect(
         routerDelegate.currentConfiguration.uri.toString(),
@@ -153,16 +160,18 @@ main() {
 
       // ....................................................
       // Should apply RouteInformation to the route node tree
-      await routerDelegate
-          .setNewRoutePath(RouteInformation(uri: Uri.parse('/routeA')));
+      await routerDelegate.setNewRoutePath(
+        RouteInformation(uri: Uri.parse('/routeA')),
+      );
       expect(router.node.root.stagedChildPath, 'routeA');
       expect(routerDelegate.currentConfiguration.uri.toString(), 'routeA?a=5');
       await tester.pumpAndSettle();
 
       // ..............................
       // Should also write query params
-      await routerDelegate
-          .setNewRoutePath(RouteInformation(uri: Uri.parse('/routeA?a=123')));
+      await routerDelegate.setNewRoutePath(
+        RouteInformation(uri: Uri.parse('/routeA?a=123')),
+      );
       router.node.param('a')!.value = 6;
 
       // ..............................
@@ -192,12 +201,10 @@ main() {
     });
 
     // .........................................................................
-    testWidgets('should load the data given by restoreState callback',
-        (WidgetTester tester) async {
-      await setUp(
-        tester,
-        restoreState: () => SynchronousFuture(exampleData),
-      );
+    testWidgets('should load the data given by restoreState callback', (
+      WidgetTester tester,
+    ) async {
+      await setUp(tester, restoreState: () => SynchronousFuture(exampleData));
       expect(routerDelegate.root.stagedChildPath, 'routeB');
       expect(
         routerDelegate.root.findOrCreateChild('routeB').param('b')?.value,
@@ -207,40 +214,40 @@ main() {
 
     // .........................................................................
     testWidgets(
-        'should save the route state automatically when a save callback is given',
-        (WidgetTester tester) async {
-      String? savedData;
+      'should save the route state automatically when a save callback is given',
+      (WidgetTester tester) async {
+        String? savedData;
 
-      // Setup delegate with a saveState callback
-      await setUp(tester, saveState: (state) => savedData = state);
-      await tester.pumpAndSettle();
-      savedData = null;
+        // Setup delegate with a saveState callback
+        await setUp(tester, saveState: (state) => savedData = state);
+        await tester.pumpAndSettle();
+        savedData = null;
 
-      // Change the route. The new route state should be saved automatically.
-      routerDelegate.root.navigateTo('routeB');
-      await tester.pumpAndSettle();
-      expect(
-        savedData,
-        contains('"${GgRouteTreeNode.stagedChildJsonKey}":"routeB"'),
-      );
-    });
+        // Change the route. The new route state should be saved automatically.
+        routerDelegate.root.navigateTo('routeB');
+        await tester.pumpAndSettle();
+        expect(
+          savedData,
+          contains('"${GgRouteTreeNode.stagedChildJsonKey}":"routeB"'),
+        );
+      },
+    );
 
     // .........................................................................
-    testWidgets('should show an empty container until data is loaded',
-        (WidgetTester tester) async {
+    testWidgets('should show an empty container until data is loaded', (
+      WidgetTester tester,
+    ) async {
       // Setup a completer yielding last saved state
       final loadData = Completer<String?>();
 
       // Start application.
-      await setUp(
-        tester,
-        restoreState: () => loadData.future,
-      );
+      await setUp(tester, restoreState: () => loadData.future);
 
       // Until completer has not completed, a loading
       // screen should be shown.
-      var loadingScreen =
-          find.byKey(const ValueKey('RouterDelegateLoadingScreen'));
+      var loadingScreen = find.byKey(
+        const ValueKey('RouterDelegateLoadingScreen'),
+      );
       expect(loadingScreen, findsOneWidget);
       var content = find.byKey(const ValueKey('content'));
       expect(content, findsNothing);
@@ -281,62 +288,59 @@ main() {
 
       // .......................................................................
       testWidgets(
-          'when instantiated without GgRouter, semantic widgets should work correctly',
-          (WidgetTester tester) async {
-        await tester.pumpWidget(
-          MaterialApp(
-            home: widget,
-          ),
-        );
-        expect(find.bySemanticsLabel('Hello'), findsOneWidget);
-        expect(find.bySemanticsLabel('World'), findsOneWidget);
-      });
+        'when instantiated without GgRouter, semantic widgets should work correctly',
+        (WidgetTester tester) async {
+          await tester.pumpWidget(MaterialApp(home: widget));
+          expect(find.bySemanticsLabel('Hello'), findsOneWidget);
+          expect(find.bySemanticsLabel('World'), findsOneWidget);
+        },
+      );
 
       // .......................................................................
       testWidgets(
-          'when instantiated within an overlay, semantic widgets should work too',
-          (WidgetTester tester) async {
-        await tester.pumpWidget(
-          GgRouter.root(
-            node: GgRouteTreeNode(name: '_ROOT_'),
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: Overlay(
-                initialEntries: [
-                  OverlayEntry(
-                    builder: (context) {
-                      return widget;
-                    },
-                  ),
-                ],
+        'when instantiated within an overlay, semantic widgets should work too',
+        (WidgetTester tester) async {
+          await tester.pumpWidget(
+            GgRouter.root(
+              node: GgRouteTreeNode(name: '_ROOT_'),
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: Overlay(
+                  initialEntries: [
+                    OverlayEntry(
+                      builder: (context) {
+                        return widget;
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
+          );
 
-        expect(find.bySemanticsLabel('Hello'), findsOneWidget);
-        expect(find.bySemanticsLabel('World'), findsOneWidget);
-      });
+          expect(find.bySemanticsLabel('Hello'), findsOneWidget);
+          expect(find.bySemanticsLabel('World'), findsOneWidget);
+        },
+      );
 
       // .......................................................................
       testWidgets(
-          'when instantiated within a RouterDelegate, semantic widgets should work too',
-          (WidgetTester tester) async {
-        // ..............................
-        final routerDelegate = GgRouterDelegate(
-          child: widget,
-        );
+        'when instantiated within a RouterDelegate, semantic widgets should work too',
+        (WidgetTester tester) async {
+          // ..............................
+          final routerDelegate = GgRouterDelegate(child: widget);
 
-        await tester.pumpWidget(
-          MaterialApp.router(
-            routeInformationParser: GgRouteInformationParser(),
-            routerDelegate: routerDelegate,
-          ),
-        );
+          await tester.pumpWidget(
+            MaterialApp.router(
+              routeInformationParser: GgRouteInformationParser(),
+              routerDelegate: routerDelegate,
+            ),
+          );
 
-        expect(find.bySemanticsLabel('Hello'), findsOneWidget);
-        expect(find.bySemanticsLabel('World'), findsOneWidget);
-      });
+          expect(find.bySemanticsLabel('Hello'), findsOneWidget);
+          expect(find.bySemanticsLabel('World'), findsOneWidget);
+        },
+      );
     });
 
     // .........................................................................

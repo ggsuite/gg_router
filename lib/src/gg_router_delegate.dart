@@ -116,14 +116,13 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
     }
 
     final uri = Uri(
-      pathSegments: _root.stagedChildPathSegments
-          .where((element) => element != '_INDEX_'),
+      pathSegments: _root.stagedChildPathSegments.where(
+        (element) => element != '_INDEX_',
+      ),
       queryParameters: queryParameters.isNotEmpty ? queryParameters : null,
     );
 
-    return RouteInformation(
-      uri: uri,
-    );
+    return RouteInformation(uri: uri);
   }
 
   // ...........................................................................
@@ -177,7 +176,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   // ...........................................................................
   final List<Function()> _dispose = [];
   late GgRouteTreeNode _root;
-  _initRoot(GgRouteTreeNode? root) {
+  void _initRoot(GgRouteTreeNode? root) {
     _root = root ?? GgRouteTreeNode(name: '_ROOT_');
 
     if (_root.stagedChild == null && defaultRoute != null) {
@@ -186,7 +185,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   }
 
   // ...........................................................................
-  _listenToChanges() {
+  void _listenToChanges() {
     final s = _root.onChange.listen((event) {
       notifyListeners();
       _saveStateTrigger.trigger();
@@ -215,7 +214,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   late GgOncePerCycle _saveStateTrigger;
-  _initSaveStateTrigger() {
+  void _initSaveStateTrigger() {
     _saveStateTrigger = GgOncePerCycle(
       task: () {
         final json = _root.json;

@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
 
-main() {
+void main() {
   group('GgPopoverRoute', () {
     // .........................................................................
     late GgEasyWidgetTest<GgPopoverRoute, dynamic> ggOverlayRouter;
@@ -38,10 +38,7 @@ main() {
           lastSizeIn = size;
           return Stack(
             children: [
-              Text(
-                '${animation.value}',
-                key: const ValueKey('inAnimation'),
-              ),
+              Text('${animation.value}', key: const ValueKey('inAnimation')),
               child,
             ],
           );
@@ -50,10 +47,7 @@ main() {
           lastSizeOut = size;
           return Stack(
             children: [
-              Text(
-                '${animation.value}',
-                key: const ValueKey('outAnimation'),
-              ),
+              Text('${animation.value}', key: const ValueKey('outAnimation')),
               child,
             ],
           );
@@ -79,8 +73,9 @@ main() {
     }
 
     // .........................................................................
-    testWidgets('should be instantiated correctly',
-        (WidgetTester tester) async {
+    testWidgets('should be instantiated correctly', (
+      WidgetTester tester,
+    ) async {
       await setUp(tester);
 
       expectAnimationValue(String prefix, String? value) {

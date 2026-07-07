@@ -28,7 +28,7 @@ const debugShowCheckedModeBanner = false;
 
 // .............................................................................
 class GgRouterExample extends StatelessWidget {
-  const GgRouterExample({Key? key}) : super(key: key);
+  const GgRouterExample({super.key});
 
   // ...........................................................................
   @override
@@ -54,11 +54,9 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   ThemeData get _darkTheme => ThemeData(brightness: Brightness.dark).copyWith(
-        colorScheme: const ColorScheme.dark().copyWith(
-          onPrimary: Colors.white,
-        ),
-        dialogBackgroundColor: const Color(0xFF222222),
-      );
+    colorScheme: const ColorScheme.dark().copyWith(onPrimary: Colors.white),
+    dialogTheme: const DialogThemeData(backgroundColor: Color(0xFF222222)),
+  );
 
   // ...........................................................................
   Widget get _appContent {
@@ -72,9 +70,7 @@ class GgRouterExample extends StatelessWidget {
               _routeButton(l.sports, 'sports'),
               _routeButton(l.transportation, 'transportation'),
               _routeButton(l.places, 'places'),
-              Container(
-                width: debugShowCheckedModeBanner ? 50 : 0,
-              ),
+              Container(width: debugShowCheckedModeBanner ? 50 : 0),
             ],
           ),
           body: Builder(
@@ -107,7 +103,7 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  _initErrorHandler(BuildContext context) {
+  void _initErrorHandler(BuildContext context) {
     final node = GgRouter.of(context).node;
     node.errorHandler = null;
     node.errorHandler = (error) {
@@ -139,13 +135,7 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   Widget _bigIcon(BuildContext context, IconData icon) {
-    return Center(
-      child: Icon(
-        icon,
-        size: 200,
-        color: const Color(0x33FFFFFF),
-      ),
-    );
+    return Center(child: Icon(icon, size: 200, color: const Color(0x33FFFFFF)));
   }
 
   // ...........................................................................
@@ -179,7 +169,7 @@ class GgRouterExample extends StatelessWidget {
   // ...........................................................................
   Widget _dialogContent(BuildContext context) {
     final theme = Theme.of(context);
-    final primary = theme.dialogBackgroundColor;
+    final primary = theme.dialogTheme.backgroundColor ?? Colors.white;
 
     return GgNavigationPageRoot(
       // Customize animation
@@ -191,85 +181,66 @@ class GgRouterExample extends StatelessWidget {
       navigationBarPadding: 10,
 
       // Customize back button
-      navigationBarBackButton: (_) => const Icon(
-        Icons.arrow_back_ios_new,
-        size: 18.0,
-      ),
+      navigationBarBackButton: (_) =>
+          const Icon(Icons.arrow_back_ios_new, size: 18.0),
 
       // Customize close button
-      navigationBarCloseButton: (_) => const Icon(
-        Icons.close,
-        size: 18.0,
-      ),
+      navigationBarCloseButton: (_) => const Icon(Icons.close, size: 18.0),
 
       child: _navigationPage(context),
     );
   }
 
   GgNavigationPage _navigationPage(BuildContext context) => GgNavigationPage(
-        // Setup page content
-        showBackButton: false,
-        pageContent: (ctx2) => Center(
-          child: Column(
-            children: [
-              const Row(
-                children: [
-                  Spacer(),
-                ],
-              ),
-              const Spacer(),
-              _checkBox(context),
-              Container(
-                height: 30,
-              ),
-              TextButton(
-                key: const ValueKey('Details Button'),
-                onPressed: () => GgRouter.of(ctx2).navigateTo('details'),
-                child: const Text('Details'),
-              ),
-              const Spacer(),
-            ],
+    // Setup page content
+    showBackButton: false,
+    pageContent: (ctx2) => Center(
+      child: Column(
+        children: [
+          const Row(children: [Spacer()]),
+          const Spacer(),
+          _checkBox(context),
+          Container(height: 30),
+          TextButton(
+            key: const ValueKey('Details Button'),
+            onPressed: () => GgRouter.of(ctx2).navigateTo('details'),
+            child: const Text('Details'),
+          ),
+          const Spacer(),
+        ],
+      ),
+    ),
+    children: {
+      'details': GgNavigationPage(
+        pageContent: (ctx3) => Container(
+          color: const Color(0xFF555555),
+          child: Center(
+            child: TextButton(
+              key: const ValueKey('More Details Button'),
+              onPressed: () {
+                GgRouter.of(ctx3).navigateTo('more-details');
+              },
+              child: const Text('More details'),
+            ),
           ),
         ),
         children: {
-          'details': GgNavigationPage(
-            pageContent: (ctx3) => Container(
-              color: const Color(0xFF555555),
-              child: Center(
-                child: TextButton(
-                  key: const ValueKey('More Details Button'),
-                  onPressed: () {
-                    GgRouter.of(ctx3).navigateTo('more-details');
-                  },
-                  child: const Text('More details'),
-                ),
-              ),
+          'more-details': GgNavigationPage(
+            pageContent: (_) => Container(
+              color: const Color(0xFF666666),
+              child: const Center(child: Text('More details')),
             ),
-            children: {
-              'more-details': GgNavigationPage(
-                pageContent: (_) => Container(
-                  color: const Color(0xFF666666),
-                  child: const Center(
-                    child: Text('More details'),
-                  ),
-                ),
-              ),
-            },
-            semanticLabels: const {
-              'more-details': 'More Details',
-            },
           ),
         },
-        semanticLabels: const {
-          'details': 'Details',
-        },
-      );
+        semanticLabels: const {'more-details': 'More Details'},
+      ),
+    },
+    semanticLabels: const {'details': 'Details'},
+  );
 
   // ...........................................................................
   Widget _dialog(BuildContext context) {
-    return Dialog(
-      child: _dialogContent(context),
-    );
+    return Dialog(child: _dialogContent(context));
   }
 
   // ...........................................................................
@@ -308,10 +279,7 @@ class GgRouterExample extends StatelessWidget {
   Widget _indexPage(BuildContext context) {
     return Center(
       key: const ValueKey('indexPage'),
-      child: Text(
-        'GgRouter',
-        style: Theme.of(context).textTheme.displayMedium,
-      ),
+      child: Text('GgRouter', style: Theme.of(context).textTheme.displayMedium),
     );
   }
 
@@ -378,9 +346,7 @@ class GgRouterExample extends StatelessWidget {
         {
           'basketball': (context) {
             return GgRouteParams(
-              params: {
-                'visit': GgRouteParam<bool>(seed: false),
-              },
+              params: {'visit': GgRouteParam<bool>(seed: false)},
               child: GgPopoverRoute(
                 key: const ValueKey('dialog'),
                 name: 'popover',
@@ -466,7 +432,7 @@ class GgRouterExample extends StatelessWidget {
     );
   }
 
-// ...........................................................................
+  // ...........................................................................
   Widget _placesPage(BuildContext context) {
     final router = GgRouter.of(context);
     // return Container(color: Colors.green);
@@ -527,15 +493,18 @@ class GgRouterExample extends StatelessWidget {
   }
 
   // ...........................................................................
-  _saveState(String state) async {
-    await (await (SharedPreferences.getInstance()))
-        .setString('lastApplicationState', state);
+  Future<void> _saveState(String state) async {
+    await (await (SharedPreferences.getInstance())).setString(
+      'lastApplicationState',
+      state,
+    );
   }
 
   // ...........................................................................
   Future<String?> _restoreState() async {
-    final result = (await (SharedPreferences.getInstance()))
-        .getString('lastApplicationState');
+    final result = (await (SharedPreferences.getInstance())).getString(
+      'lastApplicationState',
+    );
     return result;
   }
 
@@ -554,10 +523,7 @@ class GgRouterExample extends StatelessWidget {
         ? Curves.easeInOut.transform(1.0 - (animation.value * 2.0))
         : 0.0;
 
-    return Transform.scale(
-      scale: scale,
-      child: child,
-    );
+    return Transform.scale(scale: scale, child: child);
   }
 
   // ...........................................................................
@@ -572,10 +538,7 @@ class GgRouterExample extends StatelessWidget {
         ? Curves.easeInOut.transform(((animation.value - 0.5) * 2.0))
         : 0.0;
 
-    return Transform.scale(
-      scale: scale,
-      child: child,
-    );
+    return Transform.scale(scale: scale, child: child);
   }
 
   // ...........................................................................
@@ -596,13 +559,10 @@ class GgRouterExample extends StatelessWidget {
     Offset offset = index == 0
         ? fromLeft
         : index == 1
-            ? fromBottom
-            : fromRight;
+        ? fromBottom
+        : fromRight;
 
-    return Transform.translate(
-      offset: offset,
-      child: child,
-    );
+    return Transform.translate(offset: offset, child: child);
   }
 
   // ...........................................................................
@@ -623,13 +583,10 @@ class GgRouterExample extends StatelessWidget {
     Offset offset = index == 0
         ? toLeft
         : index == 1
-            ? toBottom
-            : toRight;
+        ? toBottom
+        : toRight;
 
-    return Transform.translate(
-      offset: offset,
-      child: child,
-    );
+    return Transform.translate(offset: offset, child: child);
   }
 
   // ...........................................................................
@@ -649,10 +606,7 @@ class GgRouterExample extends StatelessWidget {
       scale: scale,
       child: Transform.rotate(
         angle: angle,
-        child: Opacity(
-          opacity: fade,
-          child: child,
-        ),
+        child: Opacity(opacity: fade, child: child),
       ),
     );
   }
@@ -672,10 +626,7 @@ class GgRouterExample extends StatelessWidget {
       scale: scale,
       child: Transform.rotate(
         angle: angle,
-        child: Opacity(
-          opacity: fade,
-          child: child,
-        ),
+        child: Opacity(opacity: fade, child: child),
       ),
     );
   }

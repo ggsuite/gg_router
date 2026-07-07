@@ -8,12 +8,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/src/gg_animations.dart';
 
-typedef NewGgAnimation = GgAnimation Function({
-  required Animation<dynamic> animation,
-  required Widget child,
-  Key? key,
-  required Size size,
-});
+typedef NewGgAnimation =
+    GgAnimation Function({
+      required Animation<dynamic> animation,
+      required Widget child,
+      Key? key,
+      required Size size,
+    });
 
 void main() {
   late WidgetTester tester;
@@ -24,10 +25,7 @@ void main() {
 
   group('GgAnimation', () {
     // .........................................................................
-    Future<void> setUp(
-      WidgetTester tst,
-      NewGgAnimation ggAnimation,
-    ) async {
+    Future<void> setUp(WidgetTester tst, NewGgAnimation ggAnimation) async {
       tester = tst;
       animationController = AnimationController(vsync: tst);
       final widget = LayoutBuilder(
