@@ -1,0 +1,29 @@
+# Runs the gg-js quick check on every push and pull request against main.
+
+name: Tests
+
+on:
+  push:
+    branches: ['main']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  build:
+    name: Quick check
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [24.x]
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - run: npx @tssuite/gg-js one did commit
+
