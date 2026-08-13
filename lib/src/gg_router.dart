@@ -1,11 +1,13 @@
 // @license
-// Copyright (c) 2019 - 2021 Dr. Gabriel Gatzsche. All Rights Reserved.
+// Copyright (c) ggsuite
 //
 // Use of this source code is governed by terms that can be
-// found in the LICENSE file in the root of this repository.
+// found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
+
 import '../gg_router.dart';
+
 import 'package:gg_value/gg_value.dart';
 
 // #############################################################################
@@ -13,13 +15,12 @@ import 'package:gg_value/gg_value.dart';
 /// - [animation] The ongoing animation.
 /// - [child] The child to appear or disappear.
 /// - [size] The size of the enclosing widget.
-typedef GgAnimationBuilder =
-    Widget Function(
-      BuildContext context,
-      Animation animation,
-      Widget child,
-      Size size,
-    );
+typedef GgAnimationBuilder = Widget Function(
+  BuildContext context,
+  Animation animation,
+  Widget child,
+  Size size,
+);
 
 // #############################################################################
 /// During animation, wrap widgets into GgShowInForeground to have a widget

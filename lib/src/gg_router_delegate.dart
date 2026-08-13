@@ -1,5 +1,5 @@
 // @license
-// Copyright (c) 2019 - 2021 Dr. Gabriel Gatzsche. All Rights Reserved.
+// Copyright (c) ggsuite
 //
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
@@ -9,6 +9,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
+
 import '../gg_router.dart';
 
 /// This [RouterDelegate] applies changes of the route tree to the application's

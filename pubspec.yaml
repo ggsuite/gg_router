@@ -5,8 +5,8 @@ version: 3.1.9
 repository: https://github.com/inlavigo/gg_router
 
 environment:
-  sdk: ">=3.12.2 <4.0.0"
-  flutter: ">=3.44.4"
+  sdk: ">=3.13.0 <4.0.0"
+  flutter: ">=3.47.0"
 
 dependencies:
   flutter:

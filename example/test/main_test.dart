@@ -1,5 +1,5 @@
 // @license
-// Copyright (c) 2019 - 2021 Dr. Gabriel Gatzsche. All Rights Reserved.
+// Copyright (c) ggsuite
 //
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
@@ -82,8 +82,9 @@ void main() {
     // .........................................................................
     updateRouterDelegate(WidgetTester tester) {
       routerDelegate =
-          (tester.widget(find.byType(MaterialApp)) as MaterialApp)
-                  .routerDelegate
+          (tester.widget(
+                find.byType(MaterialApp),
+              ) as MaterialApp).routerDelegate
               as GgRouterDelegate;
     }
 
@@ -479,26 +480,27 @@ void main() {
     });
 
     // .........................................................................
-    testWidgets('opening an unknown URL should show an error in the snack bar', (
-      WidgetTester tester,
-    ) async {
-      await setUp(tester);
+    testWidgets(
+      'opening an unknown URL should show an error in the snack bar',
+      (WidgetTester tester) async {
+        await setUp(tester);
 
-      await routerDelegate.setNewRoutePath(
-        RouteInformation(uri: Uri.parse('sports/superhero')),
-      );
-      await tester.pumpAndSettle();
-      final snackBar =
-          GgEasyWidgetTest(find.byType(SnackBar), tester).widget as SnackBar;
-      expect(
-        (snackBar.content as Text).data,
-        'Route "/sports" has no child named "superhero" nor does your GgRouter define a "*" wild card route.',
-      );
+        await routerDelegate.setNewRoutePath(
+          RouteInformation(uri: Uri.parse('sports/superhero')),
+        );
+        await tester.pumpAndSettle();
+        final snackBar =
+            GgEasyWidgetTest(find.byType(SnackBar), tester).widget as SnackBar;
+        expect(
+          (snackBar.content as Text).data,
+          'Route "/sports" has no child named "superhero" nor does your GgRouter define a "*" wild card route.',
+        );
 
-      await tester.pumpAndSettle(const Duration(seconds: 5));
+        await tester.pumpAndSettle(const Duration(seconds: 5));
 
-      await tearDown(tester);
-    });
+        await tearDown(tester);
+      },
+    );
 
     // .........................................................................
     testWidgets('navigating to /xyz should open the wildcard page.', (
