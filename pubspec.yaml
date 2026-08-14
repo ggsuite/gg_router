@@ -1,7 +1,7 @@
 name: gg_router
 description: Create nested routes. Sync app state and browser URL. Navigate absolutely and relatively. Animate route transitions. Save and restore state. Manage URI query parameters.
 
-version: 3.2.0
+version: 3.1.10
 repository: https://github.com/inlavigo/gg_router
 
 environment:
