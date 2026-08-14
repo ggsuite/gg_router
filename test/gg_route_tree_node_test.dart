@@ -1,5 +1,5 @@
 // @license
-// Copyright (c) 2019 - 2021 Dr. Gabriel Gatzsche. All Rights Reserved.
+// Copyright (c) ggsuite
 //
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
@@ -240,54 +240,51 @@ void main() {
 
     // #########################################################################
     group('onChange', () {
-      test(
-        'should inform if any parameter in the subtree changes or any node is added, removed or staged',
-        () {
-          fakeAsync((fake) {
-            init();
+      test('should inform if any parameter in the subtree changes or any node is added, removed or staged', () {
+        fakeAsync((fake) {
+          init();
 
-            // ..................
-            // Listen to onChange
-            int counter = 0;
-            final s = root.onChange.listen((event) => counter++);
-            checkCounter([int? expected]) {
-              fake.flushMicrotasks();
-              expect(counter, expected ?? 1);
-              counter = 0;
-            }
+          // ..................
+          // Listen to onChange
+          int counter = 0;
+          final s = root.onChange.listen((event) => counter++);
+          checkCounter([int? expected]) {
+            fake.flushMicrotasks();
+            expect(counter, expected ?? 1);
+            counter = 0;
+          }
 
-            // ...............
-            // Add a parameter
-            final param = childC.findOrCreateParam(name: 'a', seed: 10);
-            checkCounter();
+          // ...............
+          // Add a parameter
+          final param = childC.findOrCreateParam(name: 'a', seed: 10);
+          checkCounter();
 
-            // Change a parameter
-            param.value = 11;
-            checkCounter();
+          // Change a parameter
+          param.value = 11;
+          checkCounter();
 
-            // ...........
-            // Add a child
-            final childD = childC.findOrCreateChild('child-d');
-            checkCounter();
+          // ...........
+          // Add a child
+          final childD = childC.findOrCreateChild('child-d');
+          checkCounter();
 
-            // Remove a child
-            childC.removeChild(childD);
-            checkCounter();
+          // Remove a child
+          childC.removeChild(childD);
+          checkCounter();
 
-            // ...........
-            // Stage a child
-            childC.navigateTo('.');
-            checkCounter(2);
+          // ...........
+          // Stage a child
+          childC.navigateTo('.');
+          checkCounter(2);
 
-            childA1.navigateTo('.');
-            checkCounter(2);
+          childA1.navigateTo('.');
+          checkCounter(2);
 
-            // ........
-            // Finalize
-            s.cancel();
-          });
-        },
-      );
+          // ........
+          // Finalize
+          s.cancel();
+        });
+      });
     });
 
     // #########################################################################
@@ -361,33 +358,30 @@ void main() {
         },
       );
 
-      test(
-        'If isStaged is set to false and then to true, thre previous staged child becomes staged also',
-        () {
-          init();
+      test('If isStaged is set to false and then to true, thre previous staged child becomes staged also', () {
+        init();
 
-          // Currently the complete path is staged
-          childC.navigateTo('.');
-          expect(root.isStaged, true);
-          expect(childA0.isStaged, true);
-          expect(childB.isStaged, true);
-          expect(childC.isStaged, true);
+        // Currently the complete path is staged
+        childC.navigateTo('.');
+        expect(root.isStaged, true);
+        expect(childA0.isStaged, true);
+        expect(childB.isStaged, true);
+        expect(childC.isStaged, true);
 
-          // Now we unstage childB
-          childA1.navigateTo('.');
-          expect(childA1.isStaged, true);
-          expect(childA0.isStaged, false);
+        // Now we unstage childB
+        childA1.navigateTo('.');
+        expect(childA1.isStaged, true);
+        expect(childA0.isStaged, false);
 
-          // Now we stage childB again
-          childB.navigateTo('./_LAST_');
+        // Now we stage childB again
+        childB.navigateTo('./_LAST_');
 
-          // The previous staged children remain staged
-          expect(root.isStaged, true);
-          expect(childA0.isStaged, true);
-          expect(childB.isStaged, true);
-          expect(childC.isStaged, true);
-        },
-      );
+        // The previous staged children remain staged
+        expect(root.isStaged, true);
+        expect(childA0.isStaged, true);
+        expect(childB.isStaged, true);
+        expect(childC.isStaged, true);
+      });
     });
 
     // #########################################################################
@@ -494,14 +488,11 @@ void main() {
 
     // #########################################################################
     group('child(name)', () {
-      test(
-        'should return child with name or null if no child is existing with name',
-        () {
-          init();
-          expect(root.child('child-a0'), childA0);
-          expect(root.child('child-x'), isNull);
-        },
-      );
+      test('should return child with name or null if no child is existing with name', () {
+        init();
+        expect(root.child('child-a0'), childA0);
+        expect(root.child('child-x'), isNull);
+      });
     });
 
     // #########################################################################
@@ -548,14 +539,11 @@ void main() {
         init();
         expect(root.defaultChild, isNull);
       });
-      test(
-        'should return null if defaultChildName is set, but no child with defaultChildName was created',
-        () {
-          init();
-          root.defaultChildName = 'defaultChild';
-          expect(root.defaultChild, isNull);
-        },
-      );
+      test('should return null if defaultChildName is set, but no child with defaultChildName was created', () {
+        init();
+        root.defaultChildName = 'defaultChild';
+        expect(root.defaultChild, isNull);
+      });
 
       test('should return the defaultChild if one was created before', () {
         init();
@@ -764,58 +752,55 @@ void main() {
 
     // #########################################################################
     group('needsFade, fadeInChild, fadeOutChild', () {
-      test(
-        'should return true for the first node that became staged or unstaged in a path',
-        () {
-          init();
-          // Navigate to childA1 -> root should be faded in, the others not
-          childA1.navigateTo('.');
-          expect(root.needsFade, true);
-          expect(childA1.needsFade, false);
-          expect(childC.needsFade, false);
-          root.needsFade = false;
-          childA1.needsFade = false;
+      test('should return true for the first node that became staged or unstaged in a path', () {
+        init();
+        // Navigate to childA1 -> root should be faded in, the others not
+        childA1.navigateTo('.');
+        expect(root.needsFade, true);
+        expect(childA1.needsFade, false);
+        expect(childC.needsFade, false);
+        root.needsFade = false;
+        childA1.needsFade = false;
 
-          // Navigate to childC
-          // -> childA1 needs to be faded out because it is not staged anymore
-          // -> childA0 needs to be faded in because it is staged now
-          // -> root needs no fade, because it is already active
-          // -> childB and childC need no fade, because they are not the first
-          // nodes that were staged
-          childC.navigateTo('.');
-          expect(childA1.needsFade, true);
-          expect(childA0.needsFade, true);
-          expect(root.childToBeFadedIn, childA0);
-          expect(root.childToBeFadedOut, childA1);
+        // Navigate to childC
+        // -> childA1 needs to be faded out because it is not staged anymore
+        // -> childA0 needs to be faded in because it is staged now
+        // -> root needs no fade, because it is already active
+        // -> childB and childC need no fade, because they are not the first
+        // nodes that were staged
+        childC.navigateTo('.');
+        expect(childA1.needsFade, true);
+        expect(childA0.needsFade, true);
+        expect(root.childToBeFadedIn, childA0);
+        expect(root.childToBeFadedOut, childA1);
 
-          expect(root.needsFade, false);
-          expect(childB.needsFade, false);
-          expect(childC.needsFade, false);
+        expect(root.needsFade, false);
+        expect(childB.needsFade, false);
+        expect(childC.needsFade, false);
 
-          // Navigate from child C down to child B
-          // -> child C should be faded out
-          childC.navigateTo('.');
-          childB.needsFade = false;
-          childC.needsFade = false;
-          childC.navigateTo('..');
-          expect(childC.needsFade, isTrue);
-          expect(childC.isStaged, false);
+        // Navigate from child C down to child B
+        // -> child C should be faded out
+        childC.navigateTo('.');
+        childB.needsFade = false;
+        childC.needsFade = false;
+        childC.navigateTo('..');
+        expect(childC.needsFade, isTrue);
+        expect(childC.isStaged, false);
 
-          // Navigate from child a to root
-          // -> child A should be faded out
-          childA0.navigateTo('.');
-          childA0.needsFade = false;
-          childA0.navigateTo('..');
-          expect(childA0.needsFade, isTrue);
+        // Navigate from child a to root
+        // -> child A should be faded out
+        childA0.navigateTo('.');
+        childA0.needsFade = false;
+        childA0.navigateTo('..');
+        expect(childA0.needsFade, isTrue);
 
-          // Navigate from childA0 -> /
-          // -> child A should be faded out
-          childA0.navigateTo('.');
-          childA0.needsFade = false;
-          childA0.navigateTo('/');
-          expect(childA0.needsFade, isTrue);
-        },
-      );
+        // Navigate from childA0 -> /
+        // -> child A should be faded out
+        childA0.navigateTo('.');
+        childA0.needsFade = false;
+        childA0.navigateTo('/');
+        expect(childA0.needsFade, isTrue);
+      });
     });
 
     // #########################################################################
@@ -1076,20 +1061,17 @@ void main() {
 
     // #########################################################################
     group('get pathHashCode', () {
-      test(
-        'should return a hash which is same for all nodes having the same path ',
-        () {
-          init();
-          expect(root.pathHashCode, root.pathHashCode);
-          expect(root.pathHashCode, isNot(childA0.pathHashCode));
+      test('should return a hash which is same for all nodes having the same path ', () {
+        init();
+        expect(root.pathHashCode, root.pathHashCode);
+        expect(root.pathHashCode, isNot(childA0.pathHashCode));
 
-          final root1 = GgRouteTreeNode(name: root.name);
-          expect(root.pathHashCode, root1.pathHashCode);
+        final root1 = GgRouteTreeNode(name: root.name);
+        expect(root.pathHashCode, root1.pathHashCode);
 
-          final childA11 = GgRouteTreeNode(name: childA1.name, parent: root1);
-          expect(childA11.pathHashCode, childA1.pathHashCode);
-        },
-      );
+        final childA11 = GgRouteTreeNode(name: childA1.name, parent: root1);
+        expect(childA11.pathHashCode, childA1.pathHashCode);
+      });
     });
 
     // #########################################################################
@@ -1248,39 +1230,36 @@ void main() {
 
     // #########################################################################
     group('uriParams, uriParamForName, removeUriParamForParam', () {
-      test(
-        'should allow to specify default values that are used to initialize route params',
-        () {
-          init();
+      test('should allow to specify default values that are used to initialize route params', () {
+        init();
 
-          // Let's set an early seed at the root
-          root.uriParams = {'a': '10', 'b': '20invalid'};
+        // Let's set an early seed at the root
+        root.uriParams = {'a': '10', 'b': '20invalid'};
 
-          // The seed should be avalable on all nodes of the tree
-          expect(childC.uriParamForName('a'), '10');
+        // The seed should be avalable on all nodes of the tree
+        expect(childC.uriParamForName('a'), '10');
 
-          expect(childB.uriParamForName('a'), '10');
+        expect(childB.uriParamForName('a'), '10');
 
-          expect(root.uriParamForName('a'), '10');
+        expect(root.uriParamForName('a'), '10');
 
-          expect(childC.uriParamForName('b'), '20invalid');
+        expect(childC.uriParamForName('b'), '20invalid');
 
-          // Now lets create a paramter a
-          childB.findOrCreateParam(name: 'a', seed: 11);
+        // Now lets create a paramter a
+        childB.findOrCreateParam(name: 'a', seed: 11);
 
-          // The parameter should be initialized with uriParams
-          expect(childB.param('a')?.value, 10);
+        // The parameter should be initialized with uriParams
+        expect(childB.param('a')?.value, 10);
 
-          // Early seed should only be used the first time.
-          // Thus it should be deleted now.
-          expect(root.uriParamForName('a'), null);
+        // Early seed should only be used the first time.
+        // Thus it should be deleted now.
+        expect(root.uriParamForName('a'), null);
 
-          // Now lets create a paramter b
-          // Early seed should be ignored because it has a invalid value (20inavlid).
-          childB.findOrCreateParam(name: 'b', seed: 22);
-          expect(childB.param('b')?.value, 22);
-        },
-      );
+        // Now lets create a paramter b
+        // Early seed should be ignored because it has a invalid value (20inavlid).
+        childB.findOrCreateParam(name: 'b', seed: 22);
+        expect(childB.param('b')?.value, 22);
+      });
     });
 
     // #########################################################################
@@ -1432,8 +1411,7 @@ void main() {
       });
 
       test('should also parse nested structures correctly', () {
-        root.json =
-            '{"rootParam": 6, "child":{"childParam": 2.2, "grandChild":{"grandChildParam": true}}}';
+        root.json = '{"rootParam": 6, "child":{"childParam": 2.2, "grandChild":{"grandChildParam": true}}}';
 
         expect(root.param('rootParam')?.value, 6);
         expect(child.param('childParam')?.value, 2.2);

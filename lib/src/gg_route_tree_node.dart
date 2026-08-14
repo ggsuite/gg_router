@@ -1,5 +1,5 @@
 // @license
-// Copyright (c) 2019 - 2021 Dr. Gabriel Gatzsche. All Rights Reserved.
+// Copyright (c) ggsuite
 //
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
@@ -817,8 +817,7 @@ class GgRouteTreeNode {
     if (name == '_ROOT_' && parent != null) {
       throw GgRouteTreeNodeError(
         id: 'GRC008503',
-        message:
-            'Nodes with name "_ROOT_" are root nodes and must not have a parent.',
+        message: 'Nodes with name "_ROOT_" are root nodes and must not have a parent.',
       );
     }
 

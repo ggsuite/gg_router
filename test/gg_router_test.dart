@@ -1,5 +1,5 @@
 // @license
-// Copyright (c) 2019 - 2021 Dr. Gabriel Gatzsche. All Rights Reserved.
+// Copyright (c) ggsuite
 //
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
@@ -891,9 +891,8 @@ void main() {
 
       updateAnimationDetails(BuildContext context) {
         indexOfChildAnimatingIn = GgRouter.of(context).indexOfChildAnimatingIn;
-        indexOfChildAnimatingOut = GgRouter.of(
-          context,
-        ).indexOfChildAnimatingOut;
+        indexOfChildAnimatingOut = GgRouter.of(context)
+            .indexOfChildAnimatingOut;
         nameOfChildAnimatingIn = GgRouter.of(context).nameOfChildAnimatingIn;
         nameOfChildAnimatingOut = GgRouter.of(context).nameOfChildAnimatingOut;
       }
@@ -1137,29 +1136,26 @@ void main() {
 
     // #########################################################################
     group('Semantic labels', () {
-      test(
-        'should throw an exception if semantic labels for non existing routes are defined',
-        () {
-          expect(
-            () {
-              GgRouter(
-                const {},
-                semanticLabels: const {'xyz': 'X Y Z'},
-                key: GlobalKey(),
+      test('should throw an exception if semantic labels for non existing routes are defined', () {
+        expect(
+          () {
+            GgRouter(
+              const {},
+              semanticLabels: const {'xyz': 'X Y Z'},
+              key: GlobalKey(),
+            );
+          },
+          throwsA(
+            predicate((ArgumentError e) {
+              expect(
+                e.message,
+                'You specified a semantic label for route "xyz", but you did not setup a route with name "xyz".',
               );
-            },
-            throwsA(
-              predicate((ArgumentError e) {
-                expect(
-                  e.message,
-                  'You specified a semantic label for route "xyz", but you did not setup a route with name "xyz".',
-                );
-                return true;
-              }),
-            ),
-          );
-        },
-      );
+              return true;
+            }),
+          ),
+        );
+      });
 
       test('should pass if semantic labels match the routes', () {
         GgRouter(
@@ -1253,9 +1249,8 @@ void main() {
                           );
 
                           expect(
-                            GgRouter.of(
-                              context,
-                            ).semanticLabelForPath('../../childB'),
+                            GgRouter.of(context)
+                                .semanticLabelForPath('../../childB'),
                             'childB Label',
                           );
 

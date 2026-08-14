@@ -1,5 +1,5 @@
 // @license
-// Copyright (c) 2019 - 2023 Dr. Gabriel Gatzsche. All Rights Reserved.
+// Copyright (c) ggsuite
 //
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
@@ -8,13 +8,12 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_router/src/gg_animations.dart';
 
-typedef NewGgAnimation =
-    GgAnimation Function({
-      required Animation<dynamic> animation,
-      required Widget child,
-      Key? key,
-      required Size size,
-    });
+typedef NewGgAnimation = GgAnimation Function({
+  required Animation<dynamic> animation,
+  required Widget child,
+  Key? key,
+  required Size size,
+});
 
 void main() {
   late WidgetTester tester;

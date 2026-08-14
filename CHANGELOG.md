@@ -1,12 +1,19 @@
 # Changelog
 
-## [3.1.9] - 2026-07-07
+## 3.2.0 - 2026-08-14
+
+### Fixed
+
+- Cleanup copy right headers. Update to dart 3.13. Auto fixes.
+- Cleanup copy right headers. Update to dart 3.13. Auto fixes. Setup quick-check pipeline.
+
+## 3.1.9 - 2026-07-07
 
 ### Changed
 
 - Switch to swift package manager
 
-## [3.1.8] - 2024-09-04
+## 3.1.8 - 2024-09-04
 
 ### Added
 
@@ -16,13 +23,13 @@
 
 - Adjust some color things
 
-## [3.1.7] - 2024-09-03
+## 3.1.7 - 2024-09-03
 
 ### Changed
 
 - Update flutter SDK version + Fix some issues in the example
 
-## [3.1.6] - 2024-04-13
+## 3.1.6 - 2024-04-13
 
 ### Changed
 
@@ -38,7 +45,7 @@
 
 - 'Pipline: Disable cache'
 
-## [3.1.5] - 2024-04-13
+## 3.1.5 - 2024-04-13
 
 ### Changed
 
@@ -46,10 +53,10 @@
 
 ### Removed
 
-- dependency to gg\_install\_gg, remove ./check script
+- dependency to gg_install_gg, remove ./check script
 - dependency to pana
 
-## [3.1.4] - 2024-04-10
+## 3.1.4 - 2024-04-10
 
 ## 3.1.2 - 2024-01-01
 
@@ -121,7 +128,7 @@ tree be managed outside the widget hierarchy.
 
 ## 1.0.0 - 2021-03-19
 
-- Added the option to define wild card routes using '\*' as route name.
+- Added the option to define wild card routes using '*' as route name.
 
 ## 1.0.0-beta.5 - 2021-03-18
 
@@ -147,7 +154,6 @@ tree be managed outside the widget hierarchy.
 
 - Renamed several identifiers.
 
-
 ## 1.0.0-beta.4 - 2021-03-13
 
 - Save and restore route tree
@@ -163,10 +169,3 @@ tree be managed outside the widget hierarchy.
 ## 1.0.0-beta.1 - 2021-03-10
 
 - The first public version of GgRouter.
-
-[3.1.9]: https://github.com/inlavigo/gg_router/compare/3.1.8...3.1.9
-[3.1.8]: https://github.com/inlavigo/gg_router/compare/3.1.7...3.1.8
-[3.1.7]: https://github.com/inlavigo/gg_router/compare/3.1.6...3.1.7
-[3.1.6]: https://github.com/inlavigo/gg_router/compare/3.1.5...3.1.6
-[3.1.5]: https://github.com/inlavigo/gg_router/compare/3.1.4...3.1.5
-[3.1.4]: https://github.com/inlavigo/gg_router/compare/3.1.2...3.1.4
