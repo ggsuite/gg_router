@@ -5,11 +5,6 @@
 ### Fixed
 
 - Fix header issue
-
-## 3.2.0 - 2026-08-14
-
-### Fixed
-
 - Cleanup copy right headers. Update to dart 3.13. Auto fixes.
 - Cleanup copy right headers. Update to dart 3.13. Auto fixes. Setup quick-check pipeline.
 
