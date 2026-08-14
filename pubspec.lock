@@ -76,26 +76,26 @@ packages:
     dependency: "direct dev"
     description:
       name: gg_easy_widget_test
-      sha256: "4ab426605c8dd9fdc5e8e3cd4ffb14d4fa6b4c8a0028ceb9cdbd3de9151c1111"
+      sha256: "8e6b4492e9111ca82e2e4283ecfe468386a863d71d052ec05795ea6e06f350ca"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.6"
+    version: "1.2.0"
   gg_once_per_cycle:
     dependency: "direct main"
     description:
       name: gg_once_per_cycle
-      sha256: f96e7bea6b798df6f039ef05b86115fe048953a392e00fd874f0ba4b76cd4e06
+      sha256: "361cfa28ae1305cc2765704ac3a2bb995aa8d51a94163e0d4b99c6fcaf35c74f"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.5"
+    version: "1.4.0"
   gg_value:
     dependency: "direct main"
     description:
       name: gg_value
-      sha256: f8fa2ecb6e129684bdc256248a1c54b49f74e312852a4dea028d6a25b1aa008f
+      sha256: db0b1ea65fd910aaeffc9b7bb708f13c76df6aea2c4b495c7c373aad07e7bdaa
       url: "https://pub.dev"
     source: hosted
-    version: "1.6.3"
+    version: "1.7.0"
   leak_tracker:
     dependency: transitive
     description:
