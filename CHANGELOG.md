@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Fix header issue
+
 ## 3.2.0 - 2026-08-14
 
 ### Fixed
@@ -153,6 +159,7 @@ tree be managed outside the widget hierarchy.
 - They must get the name `*INDEX*.
 
 - Renamed several identifiers.
+
 
 ## 1.0.0-beta.4 - 2021-03-13
 
