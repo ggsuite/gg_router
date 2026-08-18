@@ -72,29 +72,33 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  gg_capture_print:
+    dependency: "direct overridden"
+    description:
+      path: "../gg_capture_print"
+      relative: true
+    source: path
+    version: "1.1.0"
   gg_easy_widget_test:
     dependency: "direct dev"
     description:
-      name: gg_easy_widget_test
-      sha256: "8e6b4492e9111ca82e2e4283ecfe468386a863d71d052ec05795ea6e06f350ca"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../gg_easy_widget_test"
+      relative: true
+    source: path
     version: "1.2.0"
   gg_once_per_cycle:
     dependency: "direct main"
     description:
-      name: gg_once_per_cycle
-      sha256: "361cfa28ae1305cc2765704ac3a2bb995aa8d51a94163e0d4b99c6fcaf35c74f"
-      url: "https://pub.dev"
-    source: hosted
+      path: "../gg_once_per_cycle"
+      relative: true
+    source: path
     version: "1.4.0"
   gg_value:
     dependency: "direct main"
     description:
-      name: gg_value
-      sha256: db0b1ea65fd910aaeffc9b7bb708f13c76df6aea2c4b495c7c373aad07e7bdaa
-      url: "https://pub.dev"
-    source: hosted
+      path: "../gg_value"
+      relative: true
+    source: path
     version: "1.7.0"
   leak_tracker:
     dependency: transitive
