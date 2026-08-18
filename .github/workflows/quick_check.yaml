@@ -25,5 +25,5 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - run: npx @tssuite/gg-js one did commit
+      - run: npx @ggwsm one did commit
 
