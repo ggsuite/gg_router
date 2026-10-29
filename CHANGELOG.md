@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.3.1 - 2026-10-29
+
+### Changed
+
+- Make example a pub workspace member
+- Make the URI test pass on Windows
+
 ## 3.3.0 - 2026-09-02
 
 ### Changed

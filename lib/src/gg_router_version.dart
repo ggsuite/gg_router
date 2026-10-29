@@ -9,4 +9,4 @@
 // coverage:ignore-file
 
 /// The version of the `gg_router` package.
-const String ggRouterVersion = '3.3.0';
+const String ggRouterVersion = '3.3.1';

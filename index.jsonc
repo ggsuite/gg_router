@@ -1,0 +1,33 @@
+// @license
+// Copyright (c) ggsuite
+//
+// Use of this source code is governed by terms that can be
+// found in the LICENSE file in the root of this package.
+
+{
+  // The package name, as declared in pubspec.yaml / package.json.
+  "name": "gg_router",
+
+  // 1-2 sentence summary about this repo.
+  "summary": "Routing package for Flutter: nested routes, route transitions, query parameters, browser URI sync and saving and restoring the route state.",
+
+  // 1-3 bullet points: the problem space.
+  "domain": [
+    "nested, index, default and wildcard routes with animated transitions",
+    "URI parsing and browser URI synchronization, semantic labels",
+    "page based navigation (GgNavigationPage), saving and restoring the route state",
+  ],
+
+  // The repos this one depends on and the repos depending on it.
+  // Keep the reason or the API behind each entry, not just the name.
+  "interfaces": {
+    // "<repo-a>": "why / API"
+    "uses": {
+      "gg_value": "observable values for the route state",
+      "gg_once_per_cycle": "fires change and save-state notifications once per cycle",
+    },
+
+    // "<repo-b>": "why / API"
+    "usedBy": {},
+  },
+}
