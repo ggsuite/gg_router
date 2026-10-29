@@ -282,7 +282,9 @@ void main() {
       // Test if the url is updated correctly from the widget hierarchy
       String? lastUpdateUrl;
       routerDelegate.addListener(() {
-        lastUpdateUrl = routerDelegate.currentConfiguration.uri.toFilePath();
+        lastUpdateUrl = routerDelegate.currentConfiguration.uri.toFilePath(
+          windows: false,
+        );
       });
 
       lastBuiltNode.parent!.parent!.stagedChildPathSegments = ['a0', 'a11'];
