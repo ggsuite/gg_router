@@ -175,7 +175,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   // ...........................................................................
   bool _didNavigateToParent = false;
 
-  void _onStagedChildDidChange(GgRouteTreeNode ownNode) {
+  void _onStagedChildDidChange(GgRouteNode ownNode) {
     // If stagedChild is true, and self is staged, call onNavigateToChild
     if (ownNode.isStaged) {
       _didNavigateToParent = false;
@@ -192,7 +192,7 @@ class _GgNavigationPageState extends State<GgNavigationPage> {
   }
 
   // ...........................................................................
-  void _onIsStaged(GgRouteTreeNode ownNode) {
+  void _onIsStaged(GgRouteNode ownNode) {
     // If stagedChild is null and isStaged is true, call onShow
     if (ownNode.isStaged && ownNode.stagedChild == null) {
       widget.onShow?.call();

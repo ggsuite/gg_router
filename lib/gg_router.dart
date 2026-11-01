@@ -10,6 +10,7 @@ export 'src/gg_popover_route.dart';
 export 'src/gg_route_change_builder.dart';
 export 'src/gg_route_information_parser.dart';
 export 'src/gg_route_params.dart';
-export 'src/gg_route_tree_node.dart';
+export 'src/gg_route_path_builder.dart';
+export 'src/gg_route_node.dart';
 export 'src/gg_router.dart';
 export 'src/gg_router_delegate.dart';

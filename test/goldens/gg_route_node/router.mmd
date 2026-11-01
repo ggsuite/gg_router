@@ -1,0 +1,30 @@
+flowchart TD
+  subgraph router_788["router"]
+    isStaged_1494["isStaged"]
+    stagedChild_1495["stagedChild"]
+    path_1496["path"]
+    pathObserver_1497["pathObserver"]
+    subgraph home_789["home"]
+      isStaged_1498["isStaged"]
+      stagedChild_1499["stagedChild"]
+    end
+    subgraph settings_790["settings"]
+      isStaged_1500["isStaged"]
+      stagedChild_1501["stagedChild"]
+      subgraph sounds_791["sounds"]
+        isStaged_1502["isStaged"]
+        stagedChild_1503["stagedChild"]
+        volume_1506["volume"]
+        volumeObserver_1507["volumeObserver"]
+      end
+      subgraph display_792["display"]
+        isStaged_1504["isStaged"]
+        stagedChild_1505["stagedChild"]
+      end
+    end
+  end
+
+  path_1496 --> pathObserver_1497;
+  volume_1506 --> volumeObserver_1507;
+
+  classDef highlight fill:#FFFFAA,stroke:#333;

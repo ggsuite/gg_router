@@ -12,7 +12,7 @@ void main() {
   group('GgRouteParams', () {
     // .........................................................................
     final key = GlobalKey(debugLabel: 'GgRouteParams');
-    late GgRouteTreeNode rootNode;
+    late GgRouteNode rootNode;
     const paramName = 'a';
     const paramSeed = 5;
     const paramName1 = 'b';

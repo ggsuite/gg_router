@@ -245,6 +245,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  gg_fake_stopwatch:
+    dependency: transitive
+    description:
+      name: gg_fake_stopwatch
+      sha256: "3fd05ee439f42155eec6cf9a7679c00ba125b474eaa89bf38a8d701f063a642f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.0"
+  gg_fake_timer:
+    dependency: transitive
+    description:
+      name: gg_fake_timer
+      sha256: ed2a905a0c28cebd8cfcdf626e6a52eb5c271ec52fa7775bea7e09536d412140
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
+  gg_golden:
+    dependency: "direct dev"
+    description:
+      name: gg_golden
+      sha256: "3521911ba768ef645a50032f729109df33714a8e505194db2c7a672159fb8e24"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.3.0"
   gg_hash:
     dependency: transitive
     description:
@@ -278,7 +302,7 @@ packages:
     source: hosted
     version: "0.9.0"
   gg_once_per_cycle:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: gg_once_per_cycle
       sha256: dab574364c6adc0e5f659bfcacde8a2bfbd0ed1ba53930893a1908bf92d61406
@@ -293,14 +317,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  gg_value:
-    dependency: "direct main"
-    description:
-      name: gg_value
-      sha256: "7bb82b016b0c127831170c71e02b09cd9ecef059e246069763760e684fdc8984"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.8.0"
   helix:
     dependency: "direct dev"
     description:
@@ -594,6 +610,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
+  supply_chain:
+    dependency: "direct main"
+    description:
+      name: supply_chain
+      sha256: "725d98254472d66cc67d6efed0ec7925e8928d4913313db832fdab25631cae20"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.7.0"
+  supply_chain_flutter:
+    dependency: "direct main"
+    description:
+      name: supply_chain_flutter
+      sha256: f15813061ccde5aac97fe8619245426332712d21abac1deb495303c93e01fd8e
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   term_glyph:
     dependency: transitive
     description:

@@ -52,6 +52,8 @@ demo of GgRouter.
     - [Rebuild widget on route changes](#rebuild-widget-on-route-changes)
     - [Add semantic labels to routes](#add-semantic-labels-to-routes)
     - [Error handling](#error-handling)
+  - [State on the supply chain](#state-on-the-supply-chain)
+  - [Migrate from 3.x](#migrate-from-3x)
   - [Example](#example)
   - [Features and bugs](#features-and-bugs)
 
@@ -243,6 +245,8 @@ To use the value of a query param in a widget, use these method:
   query param `a`.
 - Use `GgRouter.of(context).param('a')?.stream` to observe value changes of
   query param `a`.
+- Use `GgRouter.of(context).param('a')?.node` to read or write the input node
+  of the query param on the supply chain.
 
 ## Animations
 
@@ -416,6 +420,57 @@ can use `GgRouter.of(context).setSemanticLabelForPath(path, label)`.
 If you open a URI in the browser that is not defined using `GgRouter(...)`, an
 error is thrown. To handle that error, assign an error handler to
 `GgRouter.of(context).node.errorHandler = (error){/* Handle Error**/}`.
+
+## State on the supply chain
+
+`gg_router` keeps the route state in a scope of
+[supply_chain](https://pub.dev/packages/supply_chain). The root route creates
+the scope `router` in the scope you pass, each route a child scope:
+
+~~~text
+router                 (scope)
+  path                 input  '/settings/sounds'
+  settings             (scope, one per route)
+    isStaged           input  true while the route is staged
+    stagedChild        input  the name of the (last) staged child
+    sounds             (scope)
+      volume           input, one per parameter
+~~~
+
+~~~dart
+final root = GgRouteNode.newRoot(scope: appScope);
+
+// Navigate without a BuildContext
+root.pathNode.product = '/settings/sounds';
+
+// Observe the navigation
+appScope.findNode<String>('router/path');
+appScope.findNode<bool>('router/settings/isStaged');
+~~~
+
+Without a scope, `GgRouteNode.newRoot()` creates a supply chain of its own.
+Route names that are not lower camel case get encoded keys, see
+`GgRouteNode.keyForName`.
+
+`GgRoutePathBuilder` rebuilds with the staged path through a `NodeBuilder`
+of [supply_chain_flutter](https://pub.dev/packages/supply_chain_flutter).
+Mount a `ScmTickDriver` near the app root, so the `NodeBuilder` is updated
+every frame.
+
+## Migrate from 3.x
+
+- Rename `GgRouteTreeNode` to `GgRouteNode` and `GgRouteTreeNodeError` to
+  `GgRouteNodeError`.
+- Parameters are `GgParam` instead of `GgValue`. `value`, `stringValue` and
+  `stream` work as before; `node` is the input node on the supply chain.
+- Pass the scope of your app to `GgRouteNode.newRoot(scope: ...)` to put the
+  router state into your supply chain.
+- Instead of `GgRouter.of(context).navigateTo(path)` packages may write the
+  node `router/path`. `GgRouter.of(context)` keeps working.
+- The JSON written by `saveState` keeps the format of 3.x. A saved route
+  state loads unchanged.
+- Remove `gg_value` and `gg_once_per_cycle` from your dependencies if you only
+  used them for the router.
 
 ## Example
 

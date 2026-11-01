@@ -4,11 +4,12 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gg_easy_widget_test/gg_easy_widget_test.dart';
 import 'package:gg_router/gg_router.dart';
-import 'package:gg_value/gg_value.dart';
 
 // #############################################################################
 class TestRouteInformationProvider extends RouteInformationProvider
@@ -34,7 +35,7 @@ void main() {
   late GgRouteInformationParser routeInformationParser;
   late GgRouterDelegate routerDelegate;
 
-  late GgRouteTreeNode lastBuiltNode;
+  late GgRouteNode lastBuiltNode;
   late String? routeSegment;
   late String? childRouteSegment;
   late String routePath;
@@ -187,10 +188,10 @@ void main() {
   }
 
   group('GgRouter', () {
-    late GgRouteTreeNode index;
-    late GgRouteTreeNode a0;
-    late GgRouteTreeNode b0;
-    late GgRouteTreeNode a11;
+    late GgRouteNode index;
+    late GgRouteNode a0;
+    late GgRouteNode b0;
+    late GgRouteNode a11;
 
     update() {
       index = lastBuiltNode;
@@ -307,7 +308,7 @@ void main() {
       // .................................................................
       // Test if an invalid url makes GgRouter showing an error widget.
       // Additionally the error handler should be called.
-      GgRouteTreeNodeError? receivedError;
+      GgRouteNodeError? receivedError;
       lastBuiltNode.root.errorHandler = null;
       lastBuiltNode.root.errorHandler = (error) => receivedError = error;
 
@@ -477,6 +478,8 @@ void main() {
 
       // .............................................................
       // GgRouter.of(context, rootRouter: true) should the root router
+      expect(rootRouter.scope, rootRouter.node.scope);
+      expect(rootRouter.pathNode, rootRouter.node.pathNode);
       expect(rootRouter2, rootRouter);
 
       // .......................................................
@@ -545,7 +548,7 @@ void main() {
       (WidgetTester tester) async {
         routeInformationProvider = TestRouteInformationProvider();
 
-        final showAAtFirstPlace = GgValue(seed: false);
+        final showAAtFirstPlace = _Value(seed: false);
 
         await setUp(
           tester,
@@ -608,7 +611,7 @@ void main() {
       // and a given set of routes and semantic labels.
       final key = GlobalKey();
 
-      final routes = GgValue<Map<String, WidgetBuilder>>(
+      final routes = _Value<Map<String, WidgetBuilder>>(
         seed: {
           '_INDEX_': (_) => const SizedBox(),
           'a': (_) => const SizedBox(),
@@ -617,7 +620,7 @@ void main() {
         },
       );
 
-      final semanticLabels = GgValue<Map<String, String>>(
+      final semanticLabels = _Value<Map<String, String>>(
         seed: {'a': 'Route A', 'b': 'Route B', 'c': 'Route C'},
       );
 
@@ -766,7 +769,7 @@ void main() {
       testWidgets('Should write the default child into the node', (
         WidgetTester tester,
       ) async {
-        late GgRouteTreeNode root;
+        late GgRouteNode root;
 
         await setUp(
           tester,
@@ -818,7 +821,7 @@ void main() {
           // Route to an unknown route -> error
 
           // .........................
-          GgRouteTreeNodeError? error;
+          GgRouteNodeError? error;
           routerDelegate.root.errorHandler = (err) => error = err;
           routerDelegate.root.navigateTo('/unknown');
 
@@ -1172,7 +1175,7 @@ void main() {
       ) async {
         // ..................
         // Create a root node
-        final root = GgRouteTreeNode.newRoot();
+        final root = GgRouteNode.newRoot();
 
         // ......................
         // Instantiate the router
@@ -1202,7 +1205,7 @@ void main() {
       ) async {
         // ......................
         // Create a popover route
-        final root = GgRouteTreeNode.newRoot();
+        final root = GgRouteNode.newRoot();
         await tester.pumpWidget(
           GgRouter.root(
             child: GgPopoverRoute(
@@ -1226,7 +1229,7 @@ void main() {
         (WidgetTester tester) async {
           // ...................
           // Create a route tree
-          final root = GgRouteTreeNode.newRoot();
+          final root = GgRouteNode.newRoot();
           bool didCheck = false;
           await tester.pumpWidget(
             GgRouter.root(
@@ -1287,7 +1290,7 @@ void main() {
         (WidgetTester tester) async {
           // ...................
           // Create a route tree
-          final root = GgRouteTreeNode.newRoot();
+          final root = GgRouteNode.newRoot();
           bool didCheck = false;
           await tester.pumpWidget(
             GgRouter.root(
@@ -1337,4 +1340,21 @@ void main() {
       );
     });
   });
+}
+
+// #############################################################################
+/// A value informing about changes
+class _Value<T> {
+  _Value({required T seed}) : _value = seed;
+
+  T get value => _value;
+  set value(T value) {
+    _value = value;
+    _controller.add(value);
+  }
+
+  Stream<T> get stream => _controller.stream;
+
+  T _value;
+  final _controller = StreamController<T>.broadcast();
 }

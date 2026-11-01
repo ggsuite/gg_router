@@ -19,7 +19,7 @@ void main() {
     late GgRouterCore router;
 
     const exampleData =
-        '{"routeB":{"b": 1234}, "${GgRouteTreeNode.stagedChildJsonKey}":"routeB"}';
+        '{"routeB":{"b": 1234}, "${GgRouteNode.stagedChildJsonKey}":"routeB"}';
 
     // .........................................................................
     setUp(
@@ -74,7 +74,7 @@ void main() {
     testWidgets('should take "root" as root node when not null', (
       WidgetTester tester,
     ) async {
-      final root = GgRouteTreeNode.newRoot();
+      final root = GgRouteNode.newRoot();
       final delegate = GgRouterDelegate(child: Container(), root: root);
       expect(delegate.root, root);
     });
@@ -83,7 +83,7 @@ void main() {
     testWidgets(
       'should apply "defaultRoute" when a root node is given and the staged child is "/"',
       (WidgetTester tester) async {
-        final root = GgRouteTreeNode.newRoot();
+        final root = GgRouteNode.newRoot();
         expect(root.stagedChildPath, '');
         final delegate = GgRouterDelegate(
           child: Container(),
@@ -99,7 +99,7 @@ void main() {
     testWidgets(
       'should not apply "defaultRoute" when a root node is given and the staged child is "/something"',
       (WidgetTester tester) async {
-        final root = GgRouteTreeNode.newRoot();
+        final root = GgRouteNode.newRoot();
         root.navigateTo('/something');
         expect(root.stagedChildPath, 'something');
         final delegate = GgRouterDelegate(
@@ -228,7 +228,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(
           savedData,
-          contains('"${GgRouteTreeNode.stagedChildJsonKey}":"routeB"'),
+          contains('"${GgRouteNode.stagedChildJsonKey}":"routeB"'),
         );
       },
     );
@@ -302,7 +302,7 @@ void main() {
         (WidgetTester tester) async {
           await tester.pumpWidget(
             GgRouter.root(
-              node: GgRouteTreeNode(name: '_ROOT_'),
+              node: GgRouteNode(name: '_ROOT_'),
               child: Directionality(
                 textDirection: TextDirection.ltr,
                 child: Overlay(

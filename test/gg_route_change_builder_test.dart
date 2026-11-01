@@ -15,12 +15,12 @@ void main() {
     late GgEasyWidgetTest<GgRouteChangeBuilder, dynamic> ggRouteChangeBuilder;
     final key = GlobalKey(debugLabel: 'GgRouteChangeBuilder');
     late int buildNumber;
-    late GgRouteTreeNode rootNode;
+    late GgRouteNode rootNode;
 
     // .........................................................................
     setUp(WidgetTester tester) async {
       buildNumber = 0;
-      rootNode = GgRouteTreeNode.newRoot();
+      rootNode = GgRouteNode.newRoot();
 
       final widget = GgRouter.root(
         child: GgRouteChangeBuilder(

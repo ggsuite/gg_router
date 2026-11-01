@@ -8,7 +8,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
 
 import '../gg_router.dart';
 
@@ -32,7 +31,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
     this.saveState,
     this.restoreState,
     this.defaultRoute,
-    GgRouteTreeNode? root,
+    GgRouteNode? root,
   }) : navigatorKey = GlobalKey<NavigatorState>() {
     _initRoot(root);
     _restoreState();
@@ -61,7 +60,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   /// Returns the root router node
-  GgRouteTreeNode get root => _root;
+  GgRouteNode get root => _root;
 
   // ...........................................................................
   /// Set [saveState] to make the last state of the app automatically be safed.
@@ -113,7 +112,7 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   RouteInformation get currentConfiguration {
     Map<String, dynamic> queryParameters = {};
     for (var param in _root.stagedParams.values) {
-      queryParameters[param.name!] = param.value.toString();
+      queryParameters[param.name] = param.value.toString();
     }
 
     final uri = Uri(
@@ -176,9 +175,9 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
 
   // ...........................................................................
   final List<Function()> _dispose = [];
-  late GgRouteTreeNode _root;
-  void _initRoot(GgRouteTreeNode? root) {
-    _root = root ?? GgRouteTreeNode(name: '_ROOT_');
+  late GgRouteNode _root;
+  void _initRoot(GgRouteNode? root) {
+    _root = root ?? GgRouteNode(name: '_ROOT_');
 
     if (_root.stagedChild == null && defaultRoute != null) {
       _root.navigateTo(defaultRoute!);
@@ -214,13 +213,31 @@ class GgRouterDelegate extends RouterDelegate<RouteInformation>
   }
 
   // ...........................................................................
-  late GgOncePerCycle _saveStateTrigger;
+  late _SaveStateTrigger _saveStateTrigger;
   void _initSaveStateTrigger() {
-    _saveStateTrigger = GgOncePerCycle(
-      task: () {
-        final json = _root.json;
-        saveState?.call(json);
-      },
-    );
+    _saveStateTrigger = _SaveStateTrigger(() {
+      final json = _root.json;
+      saveState?.call(json);
+    });
+  }
+}
+
+// #############################################################################
+/// Saves the state once per microtask cycle
+class _SaveStateTrigger {
+  _SaveStateTrigger(this.task);
+
+  final void Function() task;
+  bool _isTriggered = false;
+
+  void trigger() {
+    if (_isTriggered) {
+      return;
+    }
+    _isTriggered = true;
+    scheduleMicrotask(() {
+      _isTriggered = false;
+      task();
+    });
   }
 }

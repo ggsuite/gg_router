@@ -7,23 +7,22 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
-import 'package:gg_value/gg_value.dart';
+import 'package:supply_chain/supply_chain.dart';
 
 // #############################################################################
 /// An error that is reported when a URI cannot be assigned to a route path
-class GgRouteTreeNodeError extends Error {
+class GgRouteNodeError extends Error {
   // ...........................................................................
-  GgRouteTreeNodeError({required this.id, required this.message, this.node});
+  GgRouteNodeError({required this.id, required this.message, this.node});
 
   // ...........................................................................
   final String message;
   final String id;
-  final GgRouteTreeNode? node;
+  final GgRouteNode? node;
 
   // ...........................................................................
-  GgRouteTreeNodeError withNode(GgRouteTreeNode node) {
-    return GgRouteTreeNodeError(id: id, message: message, node: node);
+  GgRouteNodeError withNode(GgRouteNode node) {
+    return GgRouteNodeError(id: id, message: message, node: node);
   }
 
   // ...........................................................................
@@ -32,21 +31,185 @@ class GgRouteTreeNodeError extends Error {
 }
 
 // #############################################################################
-/// Internal management of route parameters
-class _Params {
-  _Params() {
-    _initParams();
-    _initOnChange();
-    _initOnChangeTrigger();
+/// Calls [task] once per microtask cycle, no matter how often it is triggered
+class _Trigger {
+  _Trigger(this.task);
+
+  final void Function() task;
+
+  void trigger() {
+    if (_isTriggered || _isDisposed) {
+      return;
+    }
+    _isTriggered = true;
+    scheduleMicrotask(() {
+      _isTriggered = false;
+      if (!_isDisposed) {
+        task();
+      }
+    });
+  }
+
+  void dispose() => _isDisposed = true;
+
+  bool _isTriggered = false;
+  bool _isDisposed = false;
+}
+
+// #############################################################################
+/// A route parameter. Its value is the product of an input node in the scope
+/// of the route.
+class GgParam<T> {
+  GgParam._({
+    required this.name,
+    required this.node,
+    this.parse,
+    this.stringify,
+  });
+
+  // ...........................................................................
+  /// The name of the parameter
+  final String name;
+
+  /// The input node holding the value of the parameter
+  final Node<T> node;
+
+  /// Parses a string into the value
+  final T Function(String)? parse;
+
+  /// Converts the value into a string
+  final String Function(T)? stringify;
+
+  // ...........................................................................
+  /// The value of the parameter
+  T get value => node.product;
+
+  /// Writes the value into the node
+  set value(T value) {
+    if (value != node.product) {
+      node.product = value;
+    }
   }
 
   // ...........................................................................
-  GgValue<T> findOrCreateParam<T>({
-    required GgRouteTreeNode parent,
+  /// Informs about changes of the value, once per supply chain production
+  Stream<T> get stream => _stream.stream;
+
+  // ...........................................................................
+  /// The value as string
+  String get stringValue {
+    final v = value;
+    if (stringify != null) {
+      return stringify!(v);
+    } else if (v is String) {
+      return v;
+    } else if (v is bool) {
+      return v ? 'true' : 'false';
+    } else if (v is num) {
+      return v.toString();
+    } else {
+      throw ArgumentError(
+        'Missing "stringify" method for unknown type "${T.toString()}".',
+      );
+    }
+  }
+
+  /// Parses [str] and writes it into the value
+  set stringValue(String str) {
+    final v = value;
+    if (parse != null) {
+      value = parse!(str);
+    } else if (v is int) {
+      value = int.parse(str) as T;
+    } else if (v is double) {
+      value = double.parse(str) as T;
+    } else if (v is bool) {
+      value = _parseBool(str) as T;
+    } else if (v is String) {
+      value = str as T;
+    } else {
+      throw ArgumentError(
+        'Missing "parse" method for unknown type "${T.toString()}".',
+      );
+    }
+  }
+
+  // ...........................................................................
+  /// Values of type bool, num and String as they are, others as string
+  dynamic get jsonDecodedValue {
+    final v = value;
+    return (v is bool || v is num || v is String) ? v : stringValue;
+  }
+
+  // ######################
+  // Private
+  // ######################
+
+  final _stream = StreamController<T>.broadcast();
+
+  late final Node<Object?> _observer;
+
+  void _initObserver() {
+    Object? lastValue = value;
+    _observer = NodeBluePrint<Object?>(
+      key: '${node.key}Observer',
+      initialProduct: value,
+      suppliers: [node.key],
+      produce: (components, previousProduct, _) {
+        final v = components.first;
+        if (v != lastValue) {
+          lastValue = v;
+          if (_stream.hasListener) {
+            _stream.add(v as T);
+          }
+        }
+        return v;
+      },
+    ).instantiate(scope: node.scope);
+
+    // Inform without waiting for the next frame
+    _observer.ownPriority = Priority.realtime;
+  }
+
+  void _dispose() {
+    _observer.dispose();
+    node.dispose();
+    _stream.close();
+  }
+
+  static bool _parseBool(String str) {
+    switch (str.toLowerCase()) {
+      case 'false':
+      case '0':
+      case 'no':
+        return false;
+      case 'true':
+      case '1':
+      case 'yes':
+        return true;
+      default:
+        throw ArgumentError('Cannot parse "$str" as bool.');
+    }
+  }
+}
+
+// #############################################################################
+/// Internal management of route parameters
+class _Params {
+  _Params() {
+    _onChangeTrigger = _Trigger(() {
+      if (!_onChange.isClosed && _onChange.hasListener) {
+        _onChange.add(null);
+      }
+    });
+  }
+
+  // ...........................................................................
+  GgParam<T> findOrCreateParam<T>({
+    required Scope scope,
     required T seed,
-    required uriParam,
+    required dynamic uriParam,
     required String name,
-    bool spam = false,
     T Function(String)? parse,
     String Function(T)? stringify,
   }) {
@@ -55,56 +218,95 @@ class _Params {
 
     // If param does not already exist, create it.
     if (result == null) {
-      result = GgValue<T>(
+      final node = _createNode<T>(
+        key: GgRouteNode.keyForName(name),
         seed: seed,
+        scope: scope,
+      )..ownPriority = Priority.realtime;
+
+      final param = GgParam<T>._(
         name: name,
-        spam: spam,
-        stringify: stringify,
+        node: node,
         parse: parse,
+        stringify: stringify,
       );
 
       if (uriParam != null) {
         try {
           if (uriParam is String) {
-            result.stringValue = uriParam;
+            param.stringValue = uriParam;
           } else {
-            result.value = uriParam;
+            param.value = uriParam as T;
           }
         } catch (e) {
           print('Was not able to write uriParam $uriParam to param $name');
         }
       }
 
-      _listenToChanges(result.stream);
+      param._initObserver();
+      final s = param.stream.listen((_) => _onChangeTrigger.trigger());
+      _dispose.add(s.cancel);
       _onChangeTrigger.trigger();
 
-      _params[name] = result;
+      _params[name] = param;
+      result = param;
     } else {
       _checkType<T>(result);
     }
 
     // Return existing or created parameter
-    return result as GgValue<T>;
+    return result as GgParam<T>;
   }
 
   // ...........................................................................
-  /// Returns true, once dispose was called
+  /// Supply chain nodes need a concrete type. Untyped params get the type of
+  /// their seed.
+  static Node<T> _createNode<T>({
+    required String key,
+    required T seed,
+    required Scope scope,
+  }) {
+    if (T != dynamic && T != Object) {
+      return NodeBluePrint<T>(
+        key: key,
+        initialProduct: seed,
+      ).instantiate(scope: scope);
+    }
+
+    final Node<dynamic> result = switch (seed) {
+      bool v => NodeBluePrint<bool>(key: key, initialProduct: v),
+      int v => NodeBluePrint<int>(key: key, initialProduct: v),
+      double v => NodeBluePrint<double>(key: key, initialProduct: v),
+      String v => NodeBluePrint<String>(key: key, initialProduct: v),
+      _ => NodeBluePrint<Object?>(key: key, initialProduct: seed),
+    }.instantiate(scope: scope);
+
+    return result as Node<T>;
+  }
+
+  // ...........................................................................
   void dispose() {
     for (var element in _dispose.reversed) {
       element();
     }
     _dispose.clear();
+    for (var element in _params.values) {
+      element._dispose();
+    }
+    _params.clear();
+    _onChangeTrigger.dispose();
+    _onChange.close();
   }
 
   // ...........................................................................
   /// Returns own param
-  GgValue<T>? param<T>(String name) {
+  GgParam<T>? param<T>(String name) {
     final result = _params[name];
     if (result != null) {
       _checkType<T>(result);
     }
 
-    return _params[name] as GgValue<T>?;
+    return _params[name] as GgParam<T>?;
   }
 
   // ...........................................................................
@@ -117,18 +319,10 @@ class _Params {
 
   // ...........................................................................
   final List<Function()> _dispose = [];
-  void _initParams() {
-    _dispose.add(() {
-      for (var element in _params.values) {
-        element.dispose();
-      }
-      _params.clear();
-    });
-  }
 
   // ...........................................................................
-  void _checkType<T>(GgValue param) {
-    if (param is! GgValue<T>) {
+  void _checkType<T>(GgParam<dynamic> param) {
+    if (param is! GgParam<T>) {
       throw ArgumentError(
         'Error while retrieving param with name "${param.name}". '
         'The existing param has type "${param.value.runtimeType.toString()}" and not "${T.toString()}".',
@@ -137,44 +331,28 @@ class _Params {
   }
 
   // ...........................................................................
-  final _params = <String, GgValue>{};
+  final _params = <String, GgParam<dynamic>>{};
 
   // ...........................................................................
   final _onChange = StreamController<void>.broadcast();
-  void _initOnChange() {
-    _dispose.add(() => _onChange.close());
-  }
-
-  // ...........................................................................
-  void _listenToChanges(Stream stream) {
-    final s = stream.listen((_) => _onChangeTrigger.trigger());
-    _dispose.add(s.cancel);
-  }
-
-  // ...........................................................................
-  late GgOncePerCycle _onChangeTrigger;
-  void _initOnChangeTrigger() {
-    _onChangeTrigger = GgOncePerCycle(
-      task: () {
-        if (!_onChange.isClosed && _onChange.hasListener) {
-          _onChange.add(null);
-        }
-      },
-    );
-    _dispose.add(_onChangeTrigger.dispose);
-  }
+  late _Trigger _onChangeTrigger;
 }
 
 // #############################################################################
-/// GgRouteTreeNode represents a node in a route tree.
-class GgRouteTreeNode {
+/// GgRouteNode represents a node in a route tree.
+class GgRouteNode {
   // ########################
   // Constructor & Destructor
   // ########################
 
   /// The node's constructor.
-  GgRouteTreeNode({required this.name, this.parent}) {
+  ///
+  /// A root node creates the scope `router` within [scope]. Without [scope]
+  /// a new supply chain is created. Child nodes create their scope within
+  /// the scope of their parent.
+  GgRouteNode({required this.name, this.parent, Scope? scope}) {
     _checkConsistency();
+    _initScope(scope);
     _initOnChange();
     _initParent();
     _initParams();
@@ -184,10 +362,12 @@ class GgRouteTreeNode {
     _initStagedChild();
     _initOwnOrChildParamChange();
     _initSubscriptions();
+    _initPathNode();
   }
 
-  /// Create a root node
-  factory GgRouteTreeNode.newRoot() => GgRouteTreeNode(name: '_ROOT_');
+  /// Create a root node. Its scope `router` is created within [scope].
+  factory GgRouteNode.newRoot({Scope? scope}) =>
+      GgRouteNode(name: '_ROOT_', scope: scope);
 
   // ...........................................................................
   /// Call this function when the node is about to be disposed.
@@ -225,11 +405,11 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// The parent node.
-  final GgRouteTreeNode? parent;
+  final GgRouteNode? parent;
 
   // ...........................................................................
   ///  The root parent of this node or the node itself, when it is a node.
-  GgRouteTreeNode get root {
+  GgRouteNode get root {
     var result = this;
     while (result.parent != null) {
       result = result.parent!;
@@ -259,7 +439,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns true if this node is staged.
-  bool get isStaged => _isStaged.value;
+  bool get isStaged => _isStaged.product;
 
   /// ...........................................................................
   /// Sets back staging for the node and it's children
@@ -278,11 +458,11 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the node's children.
-  Iterable<GgRouteTreeNode> get children => _children.values;
+  Iterable<GgRouteNode> get children => _children.values;
 
   // ...........................................................................
   /// Returns a child node with [name]. If none exists, one is created.
-  GgRouteTreeNode findOrCreateChild(String name) {
+  GgRouteNode findOrCreateChild(String name) {
     if (isIndexChild) {
       throw ArgumentError(
         'The route "$path" is an index routes and must not have children.',
@@ -291,7 +471,7 @@ class GgRouteTreeNode {
 
     var child = _children[name];
     if (child == null) {
-      child = GgRouteTreeNode(name: name, parent: this);
+      child = GgRouteNode(name: name, parent: this);
       _children[name] = child;
       _reportChange();
     }
@@ -300,7 +480,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns a child node with [name]. If none exists, null is returned
-  GgRouteTreeNode? child(String name) => _children[name];
+  GgRouteNode? child(String name) => _children[name];
 
   // ...........................................................................
   /// The default child is chosen, when you want to navigate to _LAST_ and
@@ -309,7 +489,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the default child if some exists
-  GgRouteTreeNode? get defaultChild =>
+  GgRouteNode? get defaultChild =>
       (defaultChildName != null) ? child(defaultChildName!) : null;
 
   // ...........................................................................
@@ -320,7 +500,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Removes the [child].
-  void removeChild(GgRouteTreeNode child) {
+  void removeChild(GgRouteNode child) {
     if (identical(_children[child.name], child)) {
       _unlistenNode(child);
       child.dispose();
@@ -340,7 +520,7 @@ class GgRouteTreeNode {
   /// - `.` addresses node itself
   /// - `..` addresses parent node
   /// - '_LAST_' - addresses child that was last staged or the defaultChild
-  GgRouteTreeNode descendants({required List<String> path}) {
+  GgRouteNode descendants({required List<String> path}) {
     var result = (isIndexChild ? parent : this)!;
 
     for (var element in path) {
@@ -352,8 +532,7 @@ class GgRouteTreeNode {
         }
         result = result.parent!;
       } else if (element == '_LAST_') {
-        GgRouteTreeNode? stagedChild =
-            result.stagedChild ?? result.defaultChild;
+        GgRouteNode? stagedChild = result.stagedChild ?? result.defaultChild;
 
         while (stagedChild != null) {
           result = stagedChild;
@@ -368,9 +547,9 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  List<GgRouteTreeNode> get ancestors {
-    List<GgRouteTreeNode> result = [];
-    GgRouteTreeNode? node = this;
+  List<GgRouteNode> get ancestors {
+    List<GgRouteNode> result = [];
+    GgRouteNode? node = this;
     while (node != null) {
       result.add(node);
       node = node.parent;
@@ -379,7 +558,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  GgRouteTreeNode nodeForPath(String path) {
+  GgRouteNode nodeForPath(String path) {
     return _startElement(path).descendants(path: path.split('/'));
   }
 
@@ -389,11 +568,14 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the staged child or null if no child is staged.
-  GgRouteTreeNode? get stagedChild => _stagedChild.value;
+  GgRouteNode? get stagedChild {
+    final name = _stagedChild.product;
+    return name == null ? null : _children[name];
+  }
 
   // ...........................................................................
   /// Informs if the staged child did change.
-  Stream<GgRouteTreeNode?> get stagedChildDidChange => _stagedChild.stream;
+  Stream<GgRouteNode?> get stagedChildDidChange => _stagedChildDidChange.stream;
 
   // ######################
   // Visible Route
@@ -401,10 +583,10 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns a list containing all staged descendants.
-  List<GgRouteTreeNode> get stagedDescendants {
-    GgRouteTreeNode? stagedChild = _stagedChild.value;
+  List<GgRouteNode> get stagedDescendants {
+    GgRouteNode? stagedChild = this.stagedChild;
 
-    final List<GgRouteTreeNode> result = [];
+    final List<GgRouteNode> result = [];
     while (stagedChild != null) {
       result.add(stagedChild);
       stagedChild = stagedChild.stagedChild;
@@ -415,9 +597,9 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns a list containing all staged descendants inkl. the node itself.
-  List<GgRouteTreeNode> get stagedDescendantsInklSelf {
-    final result = <GgRouteTreeNode>[];
-    GgRouteTreeNode? node = this;
+  List<GgRouteNode> get stagedDescendantsInklSelf {
+    final result = <GgRouteNode>[];
+    GgRouteNode? node = this;
     while (node != null) {
       if (node.isStaged) {
         result.add(node);
@@ -442,8 +624,8 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the child that needs to be faded in
-  GgRouteTreeNode? get childToBeFadedIn {
-    GgRouteTreeNode? result;
+  GgRouteNode? get childToBeFadedIn {
+    GgRouteNode? result;
     for (var child in children) {
       if (child.needsFade && child.isStaged) {
         result = child;
@@ -455,8 +637,8 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the child that needs to be faded out
-  GgRouteTreeNode? get childToBeFadedOut {
-    GgRouteTreeNode? result;
+  GgRouteNode? get childToBeFadedOut {
+    GgRouteNode? result;
     for (var child in children) {
       if (child.needsFade && !child.isStaged) {
         result = child;
@@ -468,7 +650,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns a stream informing when isStaged changes.
-  Stream<bool> get onIsStaged => _isStaged.stream;
+  Stream<bool> get onIsStaged => _onIsStaged.stream;
 
   // ######################
   // Params
@@ -479,7 +661,7 @@ class GgRouteTreeNode {
   /// If no param exists, one is created and initialized with [seed].
   /// - [stringify] is used to convert the value of the parameter to string.
   /// - [parse] is used parse a string into the value
-  GgValue<T> findOrCreateParam<T>({
+  GgParam<T> findOrCreateParam<T>({
     required String name,
     required T seed,
     T Function(String)? parse,
@@ -488,7 +670,7 @@ class GgRouteTreeNode {
     final es = uriParamForName(name);
 
     if (hasChild(name: name)) {
-      throw GgRouteTreeNodeError(
+      throw GgRouteNodeError(
         id: 'GRC008478',
         message:
             'Error: Cannot create param with name "$name". '
@@ -501,7 +683,7 @@ class GgRouteTreeNode {
     }
 
     var result = _params.findOrCreateParam<T>(
-      parent: this,
+      scope: scope,
       seed: seed,
       uriParam: es,
       name: name,
@@ -514,13 +696,13 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the parameter with [name] or null if no parameter with name exists.
-  GgValue<T>? param<T>(String name) => _params.param(name);
+  GgParam<T>? param<T>(String name) => _params.param(name);
 
   // ...........................................................................
   /// Returns the param from this node or its parents.
-  GgValue<T>? ownOrParentParam<T>(String name) {
-    GgValue<T>? result;
-    GgRouteTreeNode? node = this;
+  GgParam<T>? ownOrParentParam<T>(String name) {
+    GgParam<T>? result;
+    GgRouteNode? node = this;
     while (node != null && result == null) {
       result = node.param<T>(name);
       node = node.parent;
@@ -531,9 +713,9 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns all parameters of the staged path.
-  Map<String, GgValue> get stagedParams {
-    Map<String, GgValue> result = {};
-    GgRouteTreeNode? node = this;
+  Map<String, GgParam<dynamic>> get stagedParams {
+    Map<String, GgParam<dynamic>> result = {};
+    GgRouteNode? node = this;
     while (node != null) {
       result.addAll(node._params._params);
       node = node.stagedChild;
@@ -672,7 +854,7 @@ class GgRouteTreeNode {
   /// Returns the URI parameter for a given parameter [name].
   /// Returns null, if no URI parameter exists for that name.
   dynamic uriParamForName(String name) {
-    GgRouteTreeNode? node = this;
+    GgRouteNode? node = this;
     dynamic seed;
     while (node != null && seed == null) {
       seed = node.uriParams[name];
@@ -688,7 +870,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Handle error or propagate it up the tree.
-  void setError(GgRouteTreeNodeError error) {
+  void setError(GgRouteNodeError error) {
     final err = error.node == null ? error.withNode(this) : error;
     _errorHandler?.call(err);
     if (_errorHandler == null) {
@@ -707,7 +889,7 @@ class GgRouteTreeNode {
   /// Set an [errorHandler] which informs about errors. E.g., if a URI cannot be
   /// applied to the node tree, this error handler will be called.
   /// You can set an error handler only one time.
-  set errorHandler(void Function(GgRouteTreeNodeError)? errorHandler) {
+  set errorHandler(void Function(GgRouteNodeError)? errorHandler) {
     if (errorHandler != null && _errorHandler != null) {
       throw ArgumentError(
         'This node already has an error handler. Please remove previous error handler.',
@@ -719,7 +901,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns the error handler.
-  void Function(GgRouteTreeNodeError)? get errorHandler => _errorHandler;
+  void Function(GgRouteNodeError)? get errorHandler => _errorHandler;
 
   // ######################
   // JSON handling
@@ -747,7 +929,7 @@ class GgRouteTreeNode {
     try {
       object = jsonDecode(json);
     } catch (e) {
-      throw GgRouteTreeNodeError(
+      throw GgRouteNodeError(
         id: 'GRC008475',
         message: 'Error while decoding JSON: $e',
       );
@@ -793,10 +975,120 @@ class GgRouteTreeNode {
   }
 
   // ######################
+  // Supply chain
+  // ######################
+
+  // ...........................................................................
+  /// The scope holding the state of this route. The root route owns the scope
+  /// `router`, each child route a child scope named after the route.
+  late final Scope scope;
+
+  // ...........................................................................
+  /// The input node of the root route holding the staged path, e.g.
+  /// `/settings/sounds`. Write it to navigate, read it to observe the
+  /// navigation.
+  Node<String> get pathNode => root._pathNode!;
+
+  // ...........................................................................
+  /// Returns the key of the scope or node representing [name].
+  ///
+  /// Lower camel case names are kept. `_INDEX_` becomes `§index`, `*`
+  /// becomes `§any`. Other names are encoded as `§r` followed by their
+  /// character codes.
+  static String keyForName(String name) {
+    if (name.isCamelCase && !_reservedKeys.contains(name)) {
+      return name;
+    }
+    if (name == '_INDEX_') {
+      return '§index';
+    }
+    if (name == '*') {
+      return '§any';
+    }
+    final codes = name.codeUnits
+        .map((c) => c.toRadixString(36).padLeft(2, '0'))
+        .join();
+    return '§r$codes';
+  }
+
+  // ######################
   // Private
   // ######################
 
   final List<Function()> _dispose = [];
+
+  static const _reservedKeys = {'isStaged', 'stagedChild', 'path'};
+
+  // ...........................................................................
+  void _initScope(Scope? parentScope) {
+    if (parent != null) {
+      scope = ScopeBluePrint(key: keyForName(name))
+          .instantiate(scope: parent!.scope);
+    } else {
+      final parent = parentScope ?? Scope.root(key: 'root', scm: _defaultScm());
+      scope = const ScopeBluePrint(key: 'router').instantiate(scope: parent);
+    }
+
+    _dispose.add(scope.dispose);
+  }
+
+  // ...........................................................................
+  /// The supply chain manager of a router created without a scope. The route
+  /// nodes produce trivially, so no production timeout is needed.
+  static Scm _defaultScm() => Scm()..shouldTimeOut = false;
+
+  // ...........................................................................
+  Node<String>? _pathNode;
+  Node<String>? _pathObserver;
+
+  void _initPathNode() {
+    if (!isRoot) {
+      return;
+    }
+
+    _pathNode = const NodeBluePrint<String>(
+      key: 'path',
+      initialProduct: '/',
+    ).instantiate(scope: scope)..ownPriority = Priority.realtime;
+
+    // Navigate when the path node is written from outside
+    _pathObserver = NodeBluePrint<String>(
+      key: 'pathObserver',
+      initialProduct: '/',
+      suppliers: ['path'],
+      produce: (components, previousProduct, _) {
+        final path = components.first as String;
+        if (path != _stagedPath) {
+          navigateTo(path);
+        }
+        return path;
+      },
+    ).instantiate(scope: scope);
+
+    // Navigate without waiting for the next frame
+    _pathObserver!.ownPriority = Priority.realtime;
+
+    _dispose.add(() {
+      _pathObserver?.dispose();
+      _pathNode?.dispose();
+    });
+  }
+
+  // ...........................................................................
+  String get _stagedPath => '/$stagedChildPath';
+
+  // ...........................................................................
+  void _writePath() {
+    final pathNode = _pathNode;
+    if (pathNode == null || pathNode.isDisposed) {
+      return;
+    }
+
+    final path = _stagedPath;
+    if (pathNode.product != path) {
+      pathNode.product = path;
+    }
+  }
 
   static final _nameRegEx = RegExp(
     r'^[\w\d_-]+$',
@@ -808,21 +1100,21 @@ class GgRouteTreeNode {
   // Checks
   void _checkConsistency() {
     if (isRoot && name != '_ROOT_') {
-      throw GgRouteTreeNodeError(
+      throw GgRouteNodeError(
         id: 'GRC008501',
         message: 'Root nodes must have name "_ROOT_".',
       );
     }
 
     if (name == '_ROOT_' && parent != null) {
-      throw GgRouteTreeNodeError(
+      throw GgRouteNodeError(
         id: 'GRC008503',
         message: 'Nodes with name "_ROOT_" are root nodes and must not have a parent.',
       );
     }
 
     if (!isValidName(name)) {
-      throw GgRouteTreeNodeError(
+      throw GgRouteNodeError(
         id: 'GRC008502',
         message:
             'The name "$name" is not a valid node name. Node names must only contain letters, numbers, underscore or minus.',
@@ -851,7 +1143,7 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   /// Returns a list with the node's children.
-  final _children = <String, GgRouteTreeNode>{};
+  final _children = <String, GgRouteNode>{};
   void _initChildren() {
     _dispose.add(() {
       for (var child in List.from(_children.values)) {
@@ -862,7 +1154,7 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  void _removeChild(GgRouteTreeNode child) {
+  void _removeChild(GgRouteNode child) {
     _children.remove(child.name);
   }
 
@@ -883,28 +1175,27 @@ class GgRouteTreeNode {
 
   // ...........................................................................
   final _ownOrChildParamChange = StreamController<void>.broadcast();
-  late GgOncePerCycle _triggerOwnOrChildParamChange;
+  late _Trigger _triggerOwnOrChildParamChange;
 
   void _initOwnOrChildParamChange() {
     _dispose.add(() => _ownOrChildParamChange.close());
 
-    _triggerOwnOrChildParamChange = GgOncePerCycle(
-      task: () {
-        if (!_ownOrChildParamChange.isClosed &&
-            _ownOrChildParamChange.hasListener) {
-          _ownOrChildParamChange.add(null);
-        }
-      },
-    );
+    _triggerOwnOrChildParamChange = _Trigger(() {
+      if (!_ownOrChildParamChange.isClosed &&
+          _ownOrChildParamChange.hasListener) {
+        _ownOrChildParamChange.add(null);
+      }
+    });
+    _dispose.add(_triggerOwnOrChildParamChange.dispose);
 
     final s = onOwnParamChange.listen(
       (_) => _triggerOwnOrChildParamChange.trigger(),
     );
-    _dispose.add(() => s.cancel);
+    _dispose.add(s.cancel);
   }
 
   // ...........................................................................
-  final Map<GgRouteTreeNode, StreamSubscription> _subscriptions = {};
+  final Map<GgRouteNode, StreamSubscription> _subscriptions = {};
   void _initSubscriptions() {
     _dispose.add(() {
       for (var element in _subscriptions.values) {
@@ -914,14 +1205,14 @@ class GgRouteTreeNode {
   }
 
   // ...........................................................................
-  void _listenToNode(GgRouteTreeNode node) {
+  void _listenToNode(GgRouteNode node) {
     _subscriptions[node] = node.onOwnOrChildParamChange.listen(
       (event) => _triggerOwnOrChildParamChange.trigger(),
     );
   }
 
   // ...........................................................................
-  void _unlistenNode(GgRouteTreeNode node) {
+  void _unlistenNode(GgRouteNode node) {
     _subscriptions[node]!.cancel();
     _subscriptions.remove(node);
   }
@@ -931,7 +1222,7 @@ class GgRouteTreeNode {
   // ...........................................................................
   String? _removeUriParamForParam(String name) {
     // Early seed is only used the first time
-    GgRouteTreeNode? node = this;
+    GgRouteNode? node = this;
     String? seed;
     while (node != null && seed == null) {
       if (node.uriParams.containsKey(name)) {
@@ -948,20 +1239,18 @@ class GgRouteTreeNode {
   // onChange
 
   // ...........................................................................
-  final _onChange = StreamController.broadcast();
-  late GgOncePerCycle _onChangeTrigger;
+  final _onChange = StreamController<void>.broadcast();
+  late _Trigger _onChangeTrigger;
 
   // ...........................................................................
   void _initOnChange() {
     _dispose.add(_onChange.close);
-    _onChangeTrigger = GgOncePerCycle(
-      task: () {
-        if (_onChange.hasListener) {
-          _onChange.add(null);
-          parent?._reportChange();
-        }
-      },
-    );
+    _onChangeTrigger = _Trigger(() {
+      if (_onChange.hasListener) {
+        _onChange.add(null);
+        parent?._reportChange();
+      }
+    });
     _dispose.add(_onChangeTrigger.dispose);
   }
 
@@ -975,54 +1264,95 @@ class GgRouteTreeNode {
   // isStaged
 
   // ...........................................................................
-  final _isStaged = GgValue(seed: false);
+  late final Node<bool> _isStaged;
+  final _onIsStaged = StreamController<bool>.broadcast();
+  late _Trigger _onIsStagedTrigger;
 
   // ...........................................................................
   void _initIsStaged() {
+    _isStaged = const NodeBluePrint<bool>(
+      key: 'isStaged',
+      initialProduct: false,
+    ).instantiate(scope: scope)..ownPriority = Priority.realtime;
+
+    _onIsStagedTrigger = _Trigger(() {
+      if (_onIsStaged.hasListener) {
+        _onIsStaged.add(isStaged);
+      }
+    });
+
     _dispose.add(() {
       if (isStaged) {
         _setIsStaged(false);
       }
     });
-    _dispose.add(() => _isStaged.dispose());
+    _dispose.add(() {
+      _onIsStagedTrigger.dispose();
+      _onIsStaged.close();
+    });
   }
 
   // ...........................................................................
   void _setIsStaged(bool b) {
-    _isStaged.value = b;
+    if (_isStaged.product != b) {
+      _isStaged.product = b;
+      _onIsStagedTrigger.trigger();
+    }
 
-    if (b && parent?._stagedChild.value != this) {
-      parent?._stagedChild.value = this;
-    } else if (!b && parent?._stagedChild.value == this) {
-      parent?._stagedChild.value = null;
+    if (b && parent?.stagedChild != this) {
+      parent?._setStagedChild(this);
+    } else if (!b && parent?.stagedChild == this) {
+      parent?._setStagedChild(null);
     }
 
     _reportChange();
+    root._writePath();
   }
 
   // ###########
   // stagedChild
   // ...........................................................................
-  final _stagedChild = GgValue<GgRouteTreeNode?>(seed: null);
+  late final Node<String?> _stagedChild;
+  final _stagedChildDidChange = StreamController<GgRouteNode?>.broadcast();
+  late _Trigger _stagedChildDidChangeTrigger;
 
   void _initStagedChild() {
-    _dispose.add(() {
-      _stagedChild.dispose();
+    _stagedChild = const NodeBluePrint<String?>(
+      key: 'stagedChild',
+      initialProduct: null,
+    ).instantiate(scope: scope)..ownPriority = Priority.realtime;
 
-      if (parent?._stagedChild.value == this) {
-        parent?._stagedChild.value = null;
+    _stagedChildDidChangeTrigger = _Trigger(() {
+      if (_stagedChildDidChange.hasListener) {
+        _stagedChildDidChange.add(stagedChild);
       }
     });
 
-    final s = _stagedChild.stream.listen((_) => _reportChange());
-    _dispose.add(s.cancel);
+    _dispose.add(() {
+      _stagedChildDidChangeTrigger.dispose();
+      _stagedChildDidChange.close();
+
+      if (parent?.stagedChild == this) {
+        parent?._setStagedChild(null);
+      }
+    });
+  }
+
+  // ...........................................................................
+  void _setStagedChild(GgRouteNode? child) {
+    if (_stagedChild.product == child?.name) {
+      return;
+    }
+    _stagedChild.product = child?.name;
+    _stagedChildDidChangeTrigger.trigger();
+    _reportChange();
   }
 
   // ################
   // navigate
 
   // ...........................................................................
-  GgRouteTreeNode _startElement(String path) {
+  GgRouteNode _startElement(String path) {
     final startElement = path.startsWith('/') ? root : this;
     return startElement;
   }
@@ -1044,7 +1374,7 @@ class GgRouteTreeNode {
   // ##############
   // Error handling
 
-  Function(GgRouteTreeNodeError)? _errorHandler;
+  Function(GgRouteNodeError)? _errorHandler;
 
   // ##############
   // JSON handling
@@ -1065,7 +1395,7 @@ class GgRouteTreeNode {
           if (key == stagedChildJsonKey) {
             final childNode = findOrCreateChild(value);
             childNode._setIsStaged(true);
-            _stagedChild.value = childNode;
+            _setStagedChild(childNode);
           }
 
           // ...................
@@ -1096,7 +1426,7 @@ class GgRouteTreeNode {
               uriParams[key] = value;
             }
           } catch (e) {
-            throw GgRouteTreeNodeError(
+            throw GgRouteNodeError(
               id: 'GRC008477',
               message:
                   'Error while parsing value "$value" for attribute with name "$key" on path "$path": $e',
@@ -1105,7 +1435,7 @@ class GgRouteTreeNode {
         }
       });
     } else {
-      throw GgRouteTreeNodeError(
+      throw GgRouteNodeError(
         id: 'GRC008476',
         message:
             'Error while reading JSON path "$path". Expected object of type Map, but got ${json.runtimeType}.',
@@ -1119,8 +1449,8 @@ class GgRouteTreeNode {
     final result = {};
 
     // Write staged child
-    if (_stagedChild.value != null) {
-      result[stagedChildJsonKey] = _stagedChild.value!.name;
+    if (_stagedChild.product != null) {
+      result[stagedChildJsonKey] = _stagedChild.product;
     }
 
     // Write semantic labels
@@ -1150,5 +1480,5 @@ class GgRouteTreeNode {
 
 // #############################################################################
 /// Creates an lite route sample node.
-GgRouteTreeNode exampleRouteNode({String? name, GgRouteTreeNode? parent}) =>
-    GgRouteTreeNode(name: name ?? '_ROOT_', parent: parent);
+GgRouteNode exampleRouteNode({String? name, GgRouteNode? parent}) =>
+    GgRouteNode(name: name ?? '_ROOT_', parent: parent);

@@ -5,10 +5,9 @@
 // found in the LICENSE file in the root of this package.
 
 import 'package:flutter/material.dart';
+import 'package:supply_chain/supply_chain.dart';
 
 import '../gg_router.dart';
-
-import 'package:gg_value/gg_value.dart';
 
 // #############################################################################
 /// A callback GgRouter uses to animate appearing and disappearing widgets.
@@ -41,7 +40,7 @@ class GgRouterCore extends StatelessWidget {
   const GgRouterCore({super.key, required this.child, required this.node});
   // ...........................................................................
   final Widget child;
-  final GgRouteTreeNode node;
+  final GgRouteNode node;
 
   // ...........................................................................
   @override
@@ -143,7 +142,15 @@ class GgRouterCore extends StatelessWidget {
 
   // ...........................................................................
   /// Use this method to change the param with [name] or to listen to changes.
-  GgValue? param(String name) => node.ownOrParentParam(name);
+  GgParam<dynamic>? param(String name) => node.ownOrParentParam(name);
+
+  // ...........................................................................
+  /// The scope holding the state of this route
+  Scope get scope => node.scope;
+
+  // ...........................................................................
+  /// The node holding the staged path of the router. Write it to navigate.
+  Node<String> get pathNode => node.pathNode;
 }
 
 // #############################################################################
@@ -185,7 +192,7 @@ class GgRouter extends StatefulWidget {
   const GgRouter.root({
     super.key,
     required Widget child,
-    required GgRouteTreeNode node,
+    required GgRouteNode node,
   }) : _rootChild = child,
        _rootNode = node,
        children = const {},
@@ -279,7 +286,7 @@ class GgRouter extends StatefulWidget {
   // ...........................................................................
   bool get _isRoot => _rootChild != null;
   final Widget? _rootChild;
-  final GgRouteTreeNode? _rootNode;
+  final GgRouteNode? _rootNode;
 
   void _checkAnimations() {
     final inAnimationIsDefined = inAnimation != null;
@@ -292,7 +299,7 @@ class GgRouter extends StatefulWidget {
   // ...........................................................................
   void _checkChildren() {
     for (var name in children.keys) {
-      if (!GgRouteTreeNode.isValidName(name)) {
+      if (!GgRouteNode.isValidName(name)) {
         // coverage:ignore-start
         throw ArgumentError('The name "$name" is not a valid route name.');
         // coverage:ignore-end
@@ -352,12 +359,12 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   final List<Function()> _dispose = [];
 
   // ...........................................................................
-  GgRouteTreeNode? _previousVisibleNode;
-  GgRouteTreeNode? _stagedNode;
-  GgRouteTreeNode? _nodeToBeFadedIn;
-  GgRouteTreeNode? _nodeToBeFadedOut;
+  GgRouteNode? _previousVisibleNode;
+  GgRouteNode? _stagedNode;
+  GgRouteNode? _nodeToBeFadedIn;
+  GgRouteNode? _nodeToBeFadedOut;
 
-  late GgRouteTreeNode _parentNode;
+  late GgRouteNode _parentNode;
   void _initParentNode() {
     if (!widget._isRoot) {
       _parentNode = GgRouter.of(context).node;
@@ -391,7 +398,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   void _updateStagedChild({bool isFirstTime = false}) {
     // Let's get the visible child
-    GgRouteTreeNode? newVisibleNode = _parentNode.stagedChild;
+    GgRouteNode? newVisibleNode = _parentNode.stagedChild;
 
     // ........................
     // Update the child indexes
@@ -415,7 +422,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
       // Show an error message
       final invalidNode = newVisibleNode;
       _parentNode.setError(
-        GgRouteTreeNodeError(
+        GgRouteNodeError(
           id: 'GRC008448',
           message:
               'Route "${_parentNode.path}" has no child named "${invalidNode.name}" nor does your GgRouter define a "*" wild card route.',
@@ -451,7 +458,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
     // create an error and show the previous visible node.
     if (newVisibleNode == null) {
       _parentNode.setError(
-        GgRouteTreeNodeError(
+        GgRouteNodeError(
           id: 'GRC008505',
           message:
               'Route "${_parentNode.path}" has no "_INDEX_" route and also no defaultRoute set. It cannot be displayed.',
@@ -539,7 +546,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
-  WidgetBuilder? _content(GgRouteTreeNode? node) {
+  WidgetBuilder? _content(GgRouteNode? node) {
     // If a widget is defined for the name of the node, take that widget.
     // Otherwise take the wild card route.
     final nodeName = node == null
@@ -675,14 +682,14 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
-  void _createChildNodes(GgRouteTreeNode parentNode) {
+  void _createChildNodes(GgRouteNode parentNode) {
     for (var routeName in widget.children.keys) {
       parentNode.findOrCreateChild(routeName);
     }
   }
 
   // ...........................................................................
-  void _setupDefaultChild(GgRouteTreeNode parentNode) {
+  void _setupDefaultChild(GgRouteNode parentNode) {
     if (widget.defaultRoute != null) {
       if (!widget.children.containsKey(widget.defaultRoute)) {
         throw ArgumentError(
@@ -695,7 +702,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   }
 
   // ...........................................................................
-  void _setupSemanticLabels(GgRouteTreeNode parentNode) {
+  void _setupSemanticLabels(GgRouteNode parentNode) {
     widget.semanticLabels.forEach((key, value) {
       parentNode.findOrCreateChild(key).semanticLabel = value;
     });

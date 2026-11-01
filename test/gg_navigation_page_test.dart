@@ -34,7 +34,7 @@ void main() {
         // An error should be thrown complaining about index child being
         // an navigation page
         await tester.pumpWidget(
-          GgRouter.root(child: navPage, node: GgRouteTreeNode.newRoot()),
+          GgRouter.root(child: navPage, node: GgRouteNode.newRoot()),
         );
         final exception = tester.takeException();
         expect(
@@ -56,7 +56,7 @@ void main() {
         // An error should be thrown complaining about index child being
         // an navigation page
         await tester.pumpWidget(
-          GgRouter.root(child: navPage, node: GgRouteTreeNode.newRoot()),
+          GgRouter.root(child: navPage, node: GgRouteNode.newRoot()),
         );
         final exception = tester.takeException();
         expect(exception.message, GgNavigationPage.noNavigationPageRootFound);
@@ -76,7 +76,7 @@ void main() {
       await tester.pumpWidget(
         Directionality(
           textDirection: TextDirection.ltr,
-          child: GgRouter.root(child: navPage, node: GgRouteTreeNode.newRoot()),
+          child: GgRouter.root(child: navPage, node: GgRouteNode.newRoot()),
         ),
       );
 
@@ -111,7 +111,7 @@ void main() {
         }
 
         // Create a widget
-        final rootNode = GgRouteTreeNode.newRoot();
+        final rootNode = GgRouteNode.newRoot();
         final contentKey = GlobalKey();
 
         await tester.pumpWidget(
@@ -161,7 +161,7 @@ void main() {
     testWidgets('should show the route\'s semantic label as title', (
       WidgetTester tester,
     ) async {
-      final root = GgRouteTreeNode.newRoot();
+      final root = GgRouteNode.newRoot();
 
       // .........................................
       // Create a widget showing a navigation page
@@ -208,7 +208,7 @@ void main() {
     });
 
     testWidgets('should not show a back button on root page', (tester) async {
-      final root = GgRouteTreeNode.newRoot();
+      final root = GgRouteNode.newRoot();
 
       const customizedBackButton = Text('Back');
       const customizedCloseButton = Text('Close');
@@ -251,7 +251,7 @@ void main() {
     testWidgets(
       'should allow to customize back button, title and close button',
       (tester) async {
-        final root = GgRouteTreeNode.newRoot();
+        final root = GgRouteNode.newRoot();
 
         const customizedBackButton = Text('Back');
         const customizedCloseButton = Text('Close');
@@ -354,7 +354,7 @@ void main() {
       final root = GgNavigationPageRoot(child: parent());
 
       // Crate a root node
-      final rootNode = GgRouteTreeNode.newRoot();
+      final rootNode = GgRouteNode.newRoot();
 
       // Pump the widget
       await tester.pumpWidget(
@@ -457,7 +457,7 @@ void main() {
         final root = GgNavigationPageRoot(child: parent());
 
         // Crate a root node
-        final rootNode = GgRouteTreeNode.newRoot();
+        final rootNode = GgRouteNode.newRoot();
 
         // Pump the widget
         await tester.pumpWidget(
@@ -505,7 +505,7 @@ void main() {
         final root = GgNavigationPageRoot(child: parent());
 
         // Crate a root node
-        final rootNode = GgRouteTreeNode.newRoot();
+        final rootNode = GgRouteNode.newRoot();
         final childNode = rootNode.findOrCreateChild('child');
         final grandChildNode = childNode.findOrCreateChild('grandChild');
         grandChildNode.navigateTo('.');
@@ -553,7 +553,7 @@ void main() {
     testWidgets('should throw if children contain an _INDEX_route', (
       WidgetTester tester,
     ) async {
-      final node = GgRouteTreeNode.newRoot().findOrCreateChild('node');
+      final node = GgRouteNode.newRoot().findOrCreateChild('node');
 
       expect(
         () async => await tester.pumpWidget(

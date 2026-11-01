@@ -9,7 +9,6 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gg_router/gg_router.dart';
-import 'package:gg_value/gg_value.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import './l10n/app_localizations.dart';
@@ -245,7 +244,7 @@ class GgRouterExample extends StatelessWidget {
 
   // ...........................................................................
   Widget _checkBox(BuildContext context) {
-    final GgValue param = GgRouter.of(context).param('visit')!;
+    final param = GgRouter.of(context).param('visit')!;
 
     return Row(
       children: [

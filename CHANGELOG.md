@@ -1,5 +1,18 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Keep the route state on the supply chain: scope `router` with the input `path`, one scope per route with `isStaged`, `stagedChild` and an input node per parameter
+- Breaking: rename `GgRouteTreeNode` to `GgRouteNode`, `GgRouteTreeNodeError` to `GgRouteNodeError`
+- Breaking: parameters are `GgParam` objects holding an input node instead of `GgValue`
+- Breaking: depend on `supply_chain` and `supply_chain_flutter` instead of `gg_value` and `gg_once_per_cycle`
+- Navigate by writing the node `router/path`
+- Add `GgRoutePathBuilder` rebuilding with the staged path through `NodeBuilder`
+- Load and write the route JSON of 3.x unchanged
+- Describe the migration from 3.x in the README
+
 ## 3.3.1 - 2026-10-29
 
 ### Changed

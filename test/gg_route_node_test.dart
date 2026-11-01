@@ -4,24 +4,28 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
+import 'dart:convert';
+
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gg_golden/gg_golden.dart';
 import 'package:gg_router/gg_router.dart';
-import 'package:gg_router/src/gg_route_tree_node.dart';
+import 'package:gg_router/src/gg_route_node.dart';
+import 'package:supply_chain/supply_chain.dart';
 
 class OtherClass {}
 
 void main() {
-  late GgRouteTreeNode root;
-  late GgRouteTreeNode childA0;
-  late GgRouteTreeNode childA1;
-  late GgRouteTreeNode childA2;
-  late GgRouteTreeNode childA2Index;
-  late GgRouteTreeNode childB;
-  late GgRouteTreeNode childC;
+  late GgRouteNode root;
+  late GgRouteNode childA0;
+  late GgRouteNode childA1;
+  late GgRouteNode childA2;
+  late GgRouteNode childA2Index;
+  late GgRouteNode childB;
+  late GgRouteNode childC;
 
   init() {
-    root = GgRouteTreeNode.newRoot();
+    root = GgRouteNode.newRoot();
     childA0 = exampleRouteNode(name: 'child-a0', parent: root);
     childA1 = exampleRouteNode(name: 'child-a1', parent: root);
     childA2 = exampleRouteNode(name: 'child-a2', parent: root);
@@ -45,7 +49,7 @@ void main() {
     });
   });
 
-  group('GgRouteTreeNode', () {
+  group('GgRouteNode', () {
     // #########################################################################
     group('dispose()', () {
       test('should remove all children from the node. '
@@ -132,9 +136,9 @@ void main() {
         () {
           init();
           expect(
-            () => GgRouteTreeNode(name: 'root', parent: null),
+            () => GgRouteNode(name: 'root', parent: null),
             throwsA(
-              predicate((GgRouteTreeNodeError error) {
+              predicate((GgRouteNodeError error) {
                 expect(error.id, 'GRC008501');
                 expect(error.message, 'Root nodes must have name "_ROOT_".');
                 return true;
@@ -147,9 +151,9 @@ void main() {
       test('should throw an exception if name contains invalid chars', () {
         init();
         expect(
-          () => GgRouteTreeNode(name: 'root#3%', parent: root),
+          () => GgRouteNode(name: 'root#3%', parent: root),
           throwsA(
-            predicate((GgRouteTreeNodeError error) {
+            predicate((GgRouteNodeError error) {
               expect(error.id, 'GRC008502');
               expect(
                 error.message,
@@ -166,9 +170,9 @@ void main() {
         () {
           init();
           expect(
-            () => GgRouteTreeNode(name: '_ROOT_', parent: root),
+            () => GgRouteNode(name: '_ROOT_', parent: root),
             throwsA(
-              predicate((GgRouteTreeNodeError error) {
+              predicate((GgRouteNodeError error) {
                 expect(error.id, 'GRC008503');
                 expect(
                   error.message,
@@ -182,7 +186,7 @@ void main() {
       );
 
       test('should allow wildcard "*"', () {
-        expect(GgRouteTreeNode.isValidName('*'), isTrue);
+        expect(GgRouteNode.isValidName('*'), isTrue);
       });
     });
 
@@ -275,10 +279,10 @@ void main() {
           // ...........
           // Stage a child
           childC.navigateTo('.');
-          checkCounter(2);
+          checkCounter();
 
           childA1.navigateTo('.');
-          checkCounter(2);
+          checkCounter();
 
           // ........
           // Finalize
@@ -696,7 +700,7 @@ void main() {
             init();
 
             // Listen to stagedChildDidChange
-            GgRouteTreeNode? stagedChild;
+            GgRouteNode? stagedChild;
             final s = root.stagedChildDidChange.listen((c) => stagedChild = c);
 
             // Initially no child is staged
@@ -855,7 +859,7 @@ void main() {
         expect(
           () => root.findOrCreateParam(name: 'child-a0', seed: 5),
           throwsA(
-            predicate((GgRouteTreeNodeError e) {
+            predicate((GgRouteNodeError e) {
               expect(
                 e.message,
                 'Error: Cannot create param with name "child-a0". There is already a child node with the same name.',
@@ -1066,10 +1070,10 @@ void main() {
         expect(root.pathHashCode, root.pathHashCode);
         expect(root.pathHashCode, isNot(childA0.pathHashCode));
 
-        final root1 = GgRouteTreeNode(name: root.name);
+        final root1 = GgRouteNode(name: root.name);
         expect(root.pathHashCode, root1.pathHashCode);
 
-        final childA11 = GgRouteTreeNode(name: childA1.name, parent: root1);
+        final childA11 = GgRouteNode(name: childA1.name, parent: root1);
         expect(childA11.pathHashCode, childA1.pathHashCode);
       });
     });
@@ -1269,14 +1273,14 @@ void main() {
 
         // ......................................
         // Let's set an error handler on the root
-        GgRouteTreeNodeError? lastErrorReceivedOnRoot;
+        GgRouteNodeError? lastErrorReceivedOnRoot;
         dynamic errorHandler(error) => lastErrorReceivedOnRoot = error;
         root.errorHandler = errorHandler;
         expect(root.errorHandler, errorHandler);
 
         // ............................
         // Let's set an error on childC
-        final error = GgRouteTreeNodeError(
+        final error = GgRouteNodeError(
           id: 'GRC008447',
           message: 'Something went wrong.',
           node: childC,
@@ -1296,7 +1300,7 @@ void main() {
         // childB should handle the error.
         // The error should not arrive at root's error handler anymore.
         lastErrorReceivedOnRoot = null;
-        GgRouteTreeNodeError? lastErrorReceivedOnChildB;
+        GgRouteNodeError? lastErrorReceivedOnChildB;
         childB.errorHandler = (error) => lastErrorReceivedOnChildB = error;
         childC.setError(error);
         expect(lastErrorReceivedOnRoot, isNull);
@@ -1321,12 +1325,12 @@ void main() {
 
     // #########################################################################
     group('set json', () {
-      late GgRouteTreeNode root;
-      late GgRouteTreeNode child;
-      late GgRouteTreeNode grandChild;
+      late GgRouteNode root;
+      late GgRouteNode child;
+      late GgRouteNode grandChild;
 
       setUp(() {
-        root = GgRouteTreeNode(name: '_ROOT_');
+        root = GgRouteNode(name: '_ROOT_');
         root.findOrCreateParam(name: 'rootParam', seed: 1);
         child = root.findOrCreateChild('child');
         child.findOrCreateParam(name: 'childParam', seed: 1.1);
@@ -1338,7 +1342,7 @@ void main() {
         expect(
           () => root.json = 'a#39f',
           throwsA(
-            predicate((GgRouteTreeNodeError e) {
+            predicate((GgRouteNodeError e) {
               expect(e.message, startsWith('Error while decoding JSON:'));
               return true;
             }),
@@ -1352,7 +1356,7 @@ void main() {
           expect(
             () => root.json = '[]',
             throwsA(
-              predicate((GgRouteTreeNodeError error) {
+              predicate((GgRouteNodeError error) {
                 expect(
                   error.message,
                   'Error while reading JSON path "/". Expected object of type Map, but got List<dynamic>.',
@@ -1370,7 +1374,7 @@ void main() {
         expect(
           () => root.json = '{"int": "hello"}',
           throwsA(
-            predicate((GgRouteTreeNodeError error) {
+            predicate((GgRouteNodeError error) {
               expect(
                 error.message,
                 startsWith(
@@ -1456,7 +1460,7 @@ void main() {
     // #########################################################################
     group('get json', () {
       test('should return a JSON string of the object', () {
-        final root = GgRouteTreeNode(name: '_ROOT_');
+        final root = GgRouteNode(name: '_ROOT_');
         expect(root.json, '{}');
 
         final child = root.findOrCreateChild('child');
@@ -1490,22 +1494,22 @@ void main() {
       });
 
       test('should also save staged', () {
-        final root = GgRouteTreeNode(name: '_ROOT_');
+        final root = GgRouteNode(name: '_ROOT_');
         root.navigateTo('.');
         root.navigateTo('/stagedChild');
         expect(root.findOrCreateChild('stagedChild').isStaged, true);
         final json = root.json;
 
-        final rootCopy = GgRouteTreeNode(name: '_ROOT_');
+        final rootCopy = GgRouteNode(name: '_ROOT_');
         rootCopy.json = json;
         expect(rootCopy.stagedChild, rootCopy.findOrCreateChild('stagedChild'));
       });
 
       test('should also save semantic label', () {
-        final root = GgRouteTreeNode(name: '_ROOT_');
+        final root = GgRouteNode(name: '_ROOT_');
         root.semanticLabel = 'ABC';
         final json = root.json;
-        final rootCopy = GgRouteTreeNode(name: '_ROOT_');
+        final rootCopy = GgRouteNode(name: '_ROOT_');
         rootCopy.json = json;
         expect(rootCopy.semanticLabel, 'ABC');
       });
@@ -1559,6 +1563,241 @@ void main() {
         childC.setSemanticLabelForPath(path: '../../', label: 'DEF');
         expect(childA0.semanticLabel, 'DEF');
         dispose();
+      });
+    });
+  });
+
+  group('supply chain', () {
+    late Scm scm;
+    late Scope app;
+    late GgRouteNode root;
+    late GgRouteNode settings;
+    late GgRouteNode sounds;
+    late GgRouteNode display;
+
+    void init() {
+      scm = Scm(isTest: true);
+      app = Scope.root(key: 'app', scm: scm);
+      root = GgRouteNode.newRoot(scope: app);
+      root.findOrCreateChild('home');
+      settings = root.findOrCreateChild('settings');
+      sounds = settings.findOrCreateChild('sounds');
+      display = settings.findOrCreateChild('display');
+      sounds.findOrCreateParam<int>(name: 'volume', seed: 5);
+      scm.flush();
+    }
+
+    group('GgRouteNode on the supply chain', () {
+      setUp(init);
+      tearDown(() => root.dispose());
+
+      // .........................................................................
+      group('scope', () {
+        test(
+          'should create the scope "router" with a scope per route',
+          () async {
+            root.navigateTo('/settings/sounds');
+            scm.flush();
+
+            expect(root.scope.key, 'router');
+            expect(root.scope.parent, app);
+            expect(settings.scope.parent, root.scope);
+            expect(sounds.scope.path, 'app/router/settings/sounds');
+            expect(
+              app.findNode<bool>('router/settings/sounds/isStaged')!.product,
+              isTrue,
+            );
+            expect(
+              app.findNode<String?>('router/settings/stagedChild')!.product,
+              'sounds',
+            );
+            expect(
+              app.findNode<int>('router/settings/sounds/volume')!.product,
+              5,
+            );
+
+            await writeGolden('router.mmd', root.scope.mermaid());
+          },
+        );
+
+        test('should create a supply chain when no scope is given', () {
+          final other = GgRouteNode.newRoot();
+          expect(other.scope.key, 'router');
+          expect(other.scope.parent!.key, 'root');
+          other.dispose();
+        });
+      });
+
+      // .........................................................................
+      group('keyForName(name)', () {
+        test('should keep camel case names and encode the others', () {
+          expect(GgRouteNode.keyForName('settings'), 'settings');
+          expect(GgRouteNode.keyForName('_INDEX_'), '§index');
+          expect(GgRouteNode.keyForName('*'), '§any');
+          expect(GgRouteNode.keyForName('isStaged'), startsWith('§r'));
+          expect(GgRouteNode.keyForName('child-a'), startsWith('§r'));
+          expect(
+            GgRouteNode.keyForName('child-a'),
+            isNot(GgRouteNode.keyForName('child-b')),
+          );
+          expect(GgRouteNode.keyForName('child-a').isCamelCase, isTrue);
+        });
+      });
+
+      // .........................................................................
+      group('path', () {
+        test('should be written on navigation', () {
+          expect(root.pathNode.product, '/');
+
+          root.navigateTo('/settings/display');
+          expect(root.pathNode.product, '/settings/display');
+          expect(sounds.pathNode, root.pathNode);
+
+          root.navigateTo('/home');
+          expect(root.pathNode.product, '/home');
+        });
+
+        test('should navigate when written', () {
+          root.pathNode.product = '/settings/sounds';
+          scm.flush();
+          expect(root.stagedChildPath, 'settings/sounds');
+          expect(sounds.isStaged, isTrue);
+          expect(display.isStaged, isFalse);
+
+          root.pathNode.product = '/settings/display';
+          scm.flush();
+          expect(sounds.isStaged, isFalse);
+          expect(display.isStaged, isTrue);
+          expect(
+            app.findNode<bool>('router/settings/display/isStaged')!.product,
+            isTrue,
+          );
+        });
+
+        test('should resolve _LAST_ when written', () {
+          root.pathNode.product = '/settings/display';
+          scm.flush();
+          root.pathNode.product = '/home';
+          scm.flush();
+          expect(settings.isStaged, isFalse);
+
+          root.pathNode.product = '/settings/_LAST_';
+          scm.flush();
+          expect(root.pathNode.product, '/settings/display');
+          expect(display.isStaged, isTrue);
+        });
+      });
+
+      // .........................................................................
+      group('params', () {
+        test('should be input nodes', () async {
+          final volume = sounds.param<int>('volume')!;
+          expect(volume.node.key, 'volume');
+          expect(volume.node.scope, sounds.scope);
+
+          final values = <int>[];
+          final s = volume.stream.listen(values.add);
+
+          volume.node.product = 7;
+          scm.flush();
+          await Future<void>.delayed(Duration.zero);
+          expect(volume.value, 7);
+          expect(values, [7]);
+
+          volume.value = 8;
+          scm.flush();
+          await Future<void>.delayed(Duration.zero);
+          expect(values, [7, 8]);
+
+          await s.cancel();
+        });
+
+        test('should convert values from and to strings', () {
+          final i = settings.findOrCreateParam<int>(name: 'i', seed: 1);
+          i.stringValue = '2';
+          expect(i.value, 2);
+          expect(i.stringValue, '2');
+          expect(i.jsonDecodedValue, 2);
+
+          final d = settings.findOrCreateParam(name: 'd', seed: 1.5);
+          expect((d as GgParam).node, isA<Node<double>>());
+          d.stringValue = '2.5';
+          expect(d.value, 2.5);
+
+          final str = settings.findOrCreateParam(name: 'str', seed: 'a');
+          expect((str as GgParam).node, isA<Node<String>>());
+          str.stringValue = 'b';
+          expect(str.stringValue, 'b');
+
+          final b = settings.findOrCreateParam<bool>(name: 'b', seed: false);
+          for (final t in ['true', '1', 'yes']) {
+            b.value = false;
+            b.stringValue = t;
+            expect(b.value, isTrue);
+          }
+          for (final f in ['false', '0', 'no']) {
+            b.value = true;
+            b.stringValue = f;
+            expect(b.value, isFalse);
+          }
+          expect(() => b.stringValue = 'x', throwsArgumentError);
+
+          final dt = DateTime(2026);
+          final o = settings.findOrCreateParam<dynamic>(name: 'o', seed: dt);
+          expect(o.node, isA<Node<Object?>>());
+          expect(() => o.stringValue, throwsArgumentError);
+          expect(() => o.stringValue = 'x', throwsArgumentError);
+
+          final e = settings.findOrCreateParam<DateTime>(
+            name: 'e',
+            seed: dt,
+            parse: DateTime.parse,
+            stringify: (v) => v.toIso8601String(),
+          );
+          e.stringValue = '2027-01-01';
+          expect(e.value, DateTime(2027));
+          expect(e.jsonDecodedValue, DateTime(2027).toIso8601String());
+        });
+
+        test('should take the type of the seed when untyped', () {
+          final dynamic flag = settings.findOrCreateParam(
+            name: 'flag',
+            seed: true,
+          );
+          expect((flag as GgParam).node, isA<Node<bool>>());
+          expect(flag.stringValue, 'true');
+          flag.stringValue = 'no';
+          expect(flag.value, isFalse);
+        });
+      });
+
+      // .........................................................................
+      group('JSON', () {
+        test('should load and write the JSON of gg_router 3.x unchanged', () {
+          // The route state as gg_router 3.x saved it
+          const legacy = {
+            '__stagedChild': 'settings',
+            'home': <String, dynamic>{},
+            'settings': {
+              '__stagedChild': 'sounds',
+              'sounds': {'volume': 9},
+              'display': {'__semanticLabel': 'Display'},
+            },
+          };
+
+          root.json = jsonEncode(legacy);
+          scm.flush();
+
+          expect(root.pathNode.product, '/settings/sounds');
+          expect(sounds.param<int>('volume')!.value, 9);
+          expect(
+            app.findNode<int>('router/settings/sounds/volume')!.product,
+            9,
+          );
+          expect(display.semanticLabel, 'Display');
+
+          expect(jsonDecode(root.json), legacy);
+        });
       });
     });
   });

@@ -531,7 +531,7 @@ void main() {
       // Define an application state which makes transportion/bus visible
       // by default.
 
-      const stagedChildKey = GgRouteTreeNode.stagedChildJsonKey;
+      const stagedChildKey = GgRouteNode.stagedChildJsonKey;
       const lastState =
           '''
       {
@@ -560,7 +560,7 @@ void main() {
     ) async {
       initSharedPreferences();
 
-      const stagedChildKey = GgRouteTreeNode.stagedChildJsonKey;
+      const stagedChildKey = GgRouteNode.stagedChildJsonKey;
       // .......................................
       // Start the application, and expect that it is on transportation/bus
       await setUp(tester);

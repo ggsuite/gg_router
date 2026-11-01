@@ -23,7 +23,7 @@ void main() {
     var lastSizeIn = Size.zero;
     var lastSizeOut = Size.zero;
 
-    late GgRouteTreeNode root;
+    late GgRouteNode root;
 
     GgRouterCore? routeOnTopRouter;
 
