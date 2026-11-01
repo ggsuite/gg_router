@@ -992,11 +992,15 @@ class GgRouteNode {
   // ...........................................................................
   /// Returns the key of the scope or node representing [name].
   ///
-  /// Lower camel case names are kept. `_INDEX_` becomes `§index`, `*`
-  /// becomes `§any`. Other names are encoded as `§r` followed by their
-  /// character codes.
+  /// Lower camel case names are kept, unless they are used by the router
+  /// itself (`isStaged`, `stagedChild`, `path`, `...Observer`). `_INDEX_`
+  /// becomes `§index`, `*` becomes `§any`. Other names are encoded as `§r`
+  /// followed by their character codes.
   static String keyForName(String name) {
-    if (name.isCamelCase && !_reservedKeys.contains(name)) {
+    // Names ending with "Observer" would collide with the observer nodes
+    final isReserved =
+        _reservedKeys.contains(name) || name.endsWith('Observer');
+    if (name.isCamelCase && !isReserved) {
       return name;
     }
     if (name == '_INDEX_') {

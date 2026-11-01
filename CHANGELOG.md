@@ -16,6 +16,7 @@
 - Add `GgRoutePathBuilder` rebuilding with the staged path through `NodeBuilder`
 - Load and write the route JSON of 3.x unchanged
 - Describe the migration from 3.x in the README
+- Encode route names that collide with observer nodes
 
 ## 3.3.1 - 2026-10-29
 

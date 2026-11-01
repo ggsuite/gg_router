@@ -1635,6 +1635,8 @@ void main() {
           expect(GgRouteNode.keyForName('_INDEX_'), '§index');
           expect(GgRouteNode.keyForName('*'), '§any');
           expect(GgRouteNode.keyForName('isStaged'), startsWith('§r'));
+          expect(GgRouteNode.keyForName('aObserver'), startsWith('§r'));
+          expect(GgRouteNode.keyForName('pathObserver'), startsWith('§r'));
           expect(GgRouteNode.keyForName('child-a'), startsWith('§r'));
           expect(
             GgRouteNode.keyForName('child-a'),
@@ -1672,6 +1674,13 @@ void main() {
             app.findNode<bool>('router/settings/display/isStaged')!.product,
             isTrue,
           );
+        });
+
+        test('should create new routes when written', () {
+          root.pathNode.product = '/x/y';
+          scm.flush();
+          expect(root.stagedChildPath, 'x/y');
+          expect(app.findNode<bool>('router/x/y/isStaged')!.product, isTrue);
         });
 
         test('should resolve _LAST_ when written', () {
@@ -1757,6 +1766,14 @@ void main() {
           e.stringValue = '2027-01-01';
           expect(e.value, DateTime(2027));
           expect(e.jsonDecodedValue, DateTime(2027).toIso8601String());
+        });
+
+        test('should not collide with the observer nodes', () {
+          settings.findOrCreateParam(name: 'a', seed: 1);
+          final o = settings.findOrCreateParam(name: 'aObserver', seed: 2);
+          final p = root.findOrCreateParam(name: 'pathObserver', seed: 3);
+          expect(o.value, 2);
+          expect(p.value, 3);
         });
 
         test('should take the type of the seed when untyped', () {
