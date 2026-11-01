@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Added
+
+- Add the blog post about the supply chain
+
 ### Changed
 
 - Keep the route state on the supply chain: scope `router` with the input `path`, one scope per route with `isStaged`, `stagedChild` and an input node per parameter
@@ -182,6 +186,7 @@ tree be managed outside the widget hierarchy.
 - They must get the name `*INDEX*.
 
 - Renamed several identifiers.
+
 
 ## 1.0.0-beta.4 - 2021-03-13
 
