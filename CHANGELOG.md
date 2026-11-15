@@ -2,13 +2,17 @@
 
 ## Unreleased
 
-### Changed
+### Added
 
-- Migrate to the latest Dart and Flutter SDK
+- Add a blog post about the SDK migration
 
 Require Dart 3.14 and Flutter 3.50
 Import material from material_ui
 Upgrade DNA, helix and dna_ggsuite
+
+### Changed
+
+- Migrate to the latest Dart and Flutter SDK
 
 ## 3.3.1 - 2026-10-29
 
