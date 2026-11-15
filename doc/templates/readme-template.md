@@ -8,55 +8,70 @@ found in the LICENSE file in the root of this package.
 
 # <PackageName>
 
-<1–3 sentences: what does this package do, which problem does it solve?>
+English | [Deutsch](README.de.md)
 
+<!-- Keep the badges that apply, at most five. -->
 
-- `README.md` (en) and `README.de.md` (de) are updated in the same
-  change — see [Translate Guide](./translate-guide.md).
+[![CI](https://github.com/ggsuite/<package>/actions/workflows/quick_check.yaml/badge.svg)](https://github.com/ggsuite/<package>/actions/workflows/quick_check.yaml)
+[![pub package](https://img.shields.io/pub/v/<package>.svg)](https://pub.dev/packages/<package>)
+[![npm](https://img.shields.io/npm/v/<package>.svg)](https://www.npmjs.com/package/<package>)
 
+<One or two sentences: what it does and for whom. The same text as the
+`description` in `pubspec.yaml` or `package.json`.>
 
-## Goals
+## Motivation
 
-- <3–7 bullets; each one a goal, not an essay>
-
-## State
-
-<!-- Optional, CI badge -->
-
-  ```markdown
-  [![Dart Script Execution](https://github.com/ggsuite/<pkg>/actions/workflows/check.yaml/badge.svg)](...)
-  ```
+<Why this repo exists: the problem or friction that led to it and what it
+aims for. A short paragraph or 3–7 bullets.>
 
 ## Installation
 
-<Everything needed to get it running: install, run, add as a
-dependency.>
+```bash
+dart pub add <package>
+```
 
-## Documentation
+## Usage
 
-- <References, not content: link the blog, the architecture docs and the
-  guides (`doc/guides/`)>
-
-## Code Examples
-
-<The most important features, not all of them. Every snippet runs
-unchanged — no pseudo code, no TODOs; kept in sync with `example/`
-(see [Example Guide](./example-guide.md)).>
+<The most important feature, not all of them. The snippet runs unchanged
+and is the same code as `example/`.>
 
 ```dart
-import 'package:<pkg>/<pkg>.dart';
+import 'package:<package>/<package>.dart';
 
-void main() async {
+void main() {
   // Minimal example that runs unchanged
 }
 ```
 
-## How It Works
+It prints:
 
-Optional, for non-trivial mechanics
+```text
+<What the example prints>
+```
+
+## Limitations
+
+<What the package deliberately does not do, and its known sharp edges.>
+
+## Documentation
+
+<Links, not content: the guides in `doc/guides/`, the architecture docs,
+the blog, the API reference.>
+
+## How it works
+
+<Optional, for non-trivial mechanics only.>
+
+## Status
+
+<How mature it is, e.g. "Before 1.0 — the API may change between minor
+versions.">
 
 ## Contributing
 
-<Ticket workflow, commit and review rules — link the
-[Develop Guide](./develop-guide.md) and the
-[Review Guide](./for-ai/ai-review-guide.md) instead of repeating them.>
+<Link the guides this repo has, e.g. `doc/guides/develop-guide.md`,
+instead of repeating them.>
+
+## License
+
+<SPDX identifier, e.g. MIT> — see [LICENSE](LICENSE).

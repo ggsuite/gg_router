@@ -4,7 +4,7 @@
 // Use of this source code is governed by terms that can be
 // found in the LICENSE file in the root of this package.
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../gg_router.dart';
 
@@ -318,7 +318,7 @@ class GgRouter extends StatefulWidget {
 class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
   // ...........................................................................
   @override
-  dispose() {
+  void dispose() {
     for (var d in _dispose.reversed) {
       d();
     }
@@ -327,7 +327,7 @@ class GgRouterState extends State<GgRouter> with TickerProviderStateMixin {
 
   // ...........................................................................
   @override
-  initState() {
+  void initState() {
     _initParentNode();
     _initAnimation();
     _observeVisibleNode();

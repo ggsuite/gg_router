@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Migrate to the latest Dart and Flutter SDK
+
+Require Dart 3.14 and Flutter 3.50
+Import material from material_ui
+Upgrade DNA, helix and dna_ggsuite
+
 ## 3.3.1 - 2026-10-29
 
 ### Changed
@@ -169,6 +179,7 @@ tree be managed outside the widget hierarchy.
 - They must get the name `*INDEX*.
 
 - Renamed several identifiers.
+
 
 ## 1.0.0-beta.4 - 2021-03-13
 

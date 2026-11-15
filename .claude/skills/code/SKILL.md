@@ -25,8 +25,9 @@ not match its main type, and a source file without its test file.
 
 ## 2. Check the members
 
-Report public members without a doc comment, mutable public fields, and
-types whose members are out of the documented order.
+Report public members without a doc comment, mutable public fields,
+classes without an `example` constructor, and types whose members are
+out of the documented order.
 
 ## 3. Check the lints
 

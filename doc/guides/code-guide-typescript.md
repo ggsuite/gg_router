@@ -35,6 +35,18 @@ Read that one first; this only fills in the specifics.
 - Await every promise, or hand it to something that does — a floating
   promise loses its rejection
 
+## Give every class an example
+
+Offer a `static example(…)` that takes a partial options object and
+fills in a working value for everything left out:
+
+```ts
+/** Creates an example user for tests and docs. */
+static example(options: Partial<UserOptions> = {}): User {
+  return new User({ name: 'Jane Doe', age: 42, ...options });
+}
+```
+
 ## Comment landmarks
 
 - `// #####…` before a class, interface, type or enum
