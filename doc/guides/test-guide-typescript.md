@@ -35,6 +35,10 @@ Read that one first; this only fills in the specifics.
 - Release external resources in `afterEach`
 - Put reusable setup into a local closure inside the spec file
 
+## Start from the example
+
+- `const user = User.example({ age: 17 });`
+
 ## Prefer real types over mocks
 
 - Pass a function where a class would need a mock

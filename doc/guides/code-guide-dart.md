@@ -32,6 +32,17 @@ package. Read that one first; this only fills in the specifics.
   `try` / `catch` / `rethrow`
 - Await every future or mark it with `unawaited(…)`
 
+## Give every class an example
+
+Offer a `factory X.example({…})` with only optional parameters, falling
+back to a working value for each:
+
+```dart
+/// Creates an example user for tests and docs.
+factory User.example({String? name, int? age}) =>
+    User(name: name ?? 'Jane Doe', age: age ?? 42);
+```
+
 ## Comment landmarks
 
 - `// #####…` before a class, enum or other top level construct
@@ -57,12 +68,12 @@ package. Read that one first; this only fills in the specifics.
 
 | Construct | Style | Example |
 | --- | --- | --- |
-| Class | PascalCase with the package prefix | `GgRouterDelegate` |
-| File | snake_case with the package prefix | `gg_router_delegate.dart` |
-| Test file | `<filename>_test.dart` | `gg_router_delegate_test.dart` |
+| Class | PascalCase | `RouterDelegate` |
+| File | snake_case | `router_delegate.dart` |
+| Test file | `<filename>_test.dart` | `router_delegate_test.dart` |
 | Private member | `_camelCase` | `_updateState` |
 | Constant | `lowerCamelCase` | `carriageReturn` |
-| Enum value | `lowerCamelCase` | `GgStatus.success` |
+| Enum value | `lowerCamelCase` | `Status.success` |
 
 ## Avoid these
 

@@ -17,15 +17,19 @@ Read `doc/guides/blog-guide.md` and follow it.
 
 ## 1. Check whether a post is missing
 
-Look at the commits of the current ticket.
+Look at the commits of this repo in the current ticket.
 
-Report whether the year folder already holds a post for this change.
+Report whether `doc/blog/<yyyy>` already holds a post for this change.
 
 Stop here and report when it does.
 
 ## 2. Write the post
 
-Copy the template of the chosen language and fill it in.
+Copy `doc/templates/blog-template.md` and fill it in. Posts in other
+languages follow the translate guide.
+
+Describe only this repo: its own changes and what updated dependencies
+changed for it. Never mention the repos that use it.
 
 Summarize the why, the how and the result in 60-100 lines, wrapped at 80
 characters.

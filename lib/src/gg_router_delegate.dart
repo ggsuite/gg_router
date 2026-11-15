@@ -7,7 +7,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:gg_once_per_cycle/gg_once_per_cycle.dart';
 
 import '../gg_router.dart';

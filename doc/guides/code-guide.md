@@ -15,8 +15,7 @@ one of them live next door: [Dart](./code-guide-dart.md),
 
 ## Lay out the package
 
-- Name the package after the repo, and prefix its types with the same
-  name
+- Name the package after the repo
 - Keep one top level concept per package
 - Expose the package through a single entry point that re-exports and
   holds no implementation of its own
@@ -55,6 +54,19 @@ setters.
   explicitly — never swallow them
 - Await every asynchronous call, or mark deliberately that you do not
 
+## Give every class an example
+
+- Offer an `example` constructor that builds a valid instance without a
+  single argument
+- Make each of its parameters optional, so a caller overrides only the
+  values that matter to them
+- Fill everything else with realistic values, not with empty strings and
+  zeros
+- Use the example in tests, docs and other examples instead of building
+  the object by hand
+- Leave it out only where nothing can be instantiated: abstract types,
+  enums and purely static helpers
+
 ## Separate sections with comment landmarks
 
 - A `#####` rule before a class, enum or other top level construct
@@ -89,7 +101,7 @@ Keep the style as it is — do not invent variants.
 
 ## Name things consistently
 
-- Types in PascalCase, carrying the package prefix
+- Types in PascalCase
 - Private members marked the way the language marks them
 - Constants and enum values in lowerCamelCase
 - A test file named after the file it covers

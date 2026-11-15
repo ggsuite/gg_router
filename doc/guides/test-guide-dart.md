@@ -35,6 +35,10 @@ package. Read that one first; this only fills in the specifics.
 - Release external resources in `tearDown`
 - Put reusable setup into a local closure inside `main()`
 
+## Start from the example
+
+- `final user = User.example(age: 17);`
+
 ## Prefer real types over mocks
 
 - Reach for `mockito` or `mocktail` only when nothing else works

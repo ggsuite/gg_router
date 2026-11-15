@@ -10,16 +10,26 @@ import { execSync } from 'child_process';
 import { writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import {
-  blue,
-  cyan,
-  gray,
-  green,
-  red,
-  white,
-  yellow,
-} from './functions/colors.js';
-import { runCommand } from './functions/run-command.js';
+// ...........................................................................
+// Colors
+const color = (code) => (str) => `\x1b[${code}m${str}\x1b[0m`;
+const red = color(31);
+const green = color(32);
+const yellow = color(33);
+const blue = color(34);
+const cyan = color(36);
+const white = color(37);
+const gray = color(90);
+
+// ...........................................................................
+// Execute a shell command and return trimmed output
+function runCommand(command) {
+  console.log(gray(command));
+  return execSync(command, {
+    encoding: 'utf-8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  }).trim();
+}
 
 // The name of the branch ruleset managed by this script
 const rulesetName = 'Default';

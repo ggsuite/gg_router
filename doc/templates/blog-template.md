@@ -10,7 +10,8 @@ found in the LICENSE file in the root of this package.
 
 ## Motivation
 
-- Why, what for, for whom — the bigger goal, not just the trigger.
+- Why and what for, from the view of this repo — the bigger goal, not just
+  the trigger.
 
 ## Strategy
 
@@ -24,6 +25,11 @@ found in the LICENSE file in the root of this package.
 ## Implementation 2
 
 - ..
+
+## Dependency updates
+
+- What changed in updated dependencies and matters for this repo.
+- Leave this section out if no dependency was updated.
 
 ## Open Points
 
