@@ -73,38 +73,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.8"
+  cupertino_ui:
+    dependency: transitive
+    description:
+      name: cupertino_ui
+      sha256: "369e39a1c5c030a6212589c3da1809920b1c2cfade7b02aade7695bfa4b88c3a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.6"
   dna_blog:
     dependency: transitive
     description:
       name: dna_blog
-      sha256: ec676f751442e6f1b0e2423e76554341a04c11000ba743142ff884b939ed321b
+      sha256: "3f02de53c30b862b26aac473bc65e81626318184482249a98dd6090a31b58cf7"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.4.0"
   dna_clean_code:
     dependency: transitive
     description:
       name: dna_clean_code
-      sha256: "18299d5e4a01e56c9a51629ad70646f28a638bb866c88122c5c4f47bd5828e6c"
+      sha256: "19900569769dc4a32b43d99fa6a6b9180a9136ba805ec202778b0c3006d03162"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.2"
-  dna_gg:
-    dependency: transitive
-    description:
-      name: dna_gg
-      sha256: a57431385f8391ac08e1b1c71f15de04f231faea9b1277d01f19291ffc480e16
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
+    version: "0.4.0"
   dna_ggsuite:
     dependency: "direct dev"
     description:
       name: dna_ggsuite
-      sha256: ab83b121477005dae6f503e1097f4a26d908ea876f1c71f9724efae2b763f168
+      sha256: "3897b2632e7af7180383a20ba3b1494ca994272467c823816a11b27fdb2bfb4f"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "2.0.0"
   dna_github:
     dependency: transitive
     description:
@@ -157,10 +157,10 @@ packages:
     dependency: transitive
     description:
       name: dna_translate
-      sha256: c6c72c756b93377e6d4232c4e773fe9ed478da5570e9b1680b9bf4e4f1d345de
+      sha256: "42299a3ee0623e4c00ee260e72956523d6eb8869b41b63664bb243ca508b5da3"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.4.0"
   dna_vscode:
     dependency: transitive
     description:
@@ -304,11 +304,10 @@ packages:
   helix:
     dependency: "direct dev"
     description:
-      name: helix
-      sha256: ef8f11569ff5d8e3c86b569c7a20598e266ea5d7ae8d8b24d82fbc1ad1c0e43a
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.14.0"
+      path: "../helix"
+      relative: true
+    source: path
+    version: "1.15.1"
   hooks:
     dependency: transitive
     description:
@@ -405,6 +404,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.13.0"
+  material_ui:
+    dependency: "direct main"
+    description:
+      name: material_ui
+      sha256: "474c135fd46b56ff1d35ca982155e8863d28fbc6464d1192acf4ee53a738680e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.11.0"
   meta:
     dependency: transitive
     description:
@@ -659,5 +666,5 @@ packages:
     source: hosted
     version: "3.1.4"
 sdks:
-  dart: ">=3.13.0 <4.0.0"
-  flutter: ">=3.47.0"
+  dart: ">=3.14.0 <4.0.0"
+  flutter: ">=3.50.0"
