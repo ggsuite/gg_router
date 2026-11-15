@@ -19,7 +19,8 @@ Read `doc/guides/blog-guide.md` and follow it.
 
 Look at the commits of this repo in the current ticket.
 
-Report whether `doc/blog/<yyyy>` already holds a post for this change.
+Report whether `doc/blog/<yyyy>` — in a project management repo
+`doc/<yyyy>-Q<n>/blog` — already holds a post for this change.
 
 Stop here and report when it does.
 
