@@ -25,6 +25,6 @@ dev_dependencies:
   lints: ^6.1.0
   args: ^2.7.0
   dna_ggsuite: ^2.0.0
-  helix: ^1.15.1
+  helix: ^1.15.2
 workspace:
   - example
