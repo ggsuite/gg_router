@@ -27,11 +27,15 @@ found in the LICENSE file in the root of this package.
 
 ## Copy the template
 
-- Create a year folder `doc/blog/<yyyy>`, if not present
+- Create a year folder `doc/blog/<yyyy>`, if not present. A project
+  management repo files its posts in the current quarter folder instead:
+  `doc/<yyyy>-Q<n>/blog`, see its PM repo guide
 - Come up with a summarizing title for the ticket
 - Derive a file name title from it, in english kebab case
 - Copy `doc/templates/blog-template.md` to
-  `doc/blog/<yyyy>/<yyyy>-<mm>-<dd>-<title-in-english-kebab-case>.md`
+  `doc/blog/<yyyy>/<yyyy>-<mm>-<dd>-<title-in-english-kebab-case>.md`,
+  in a project management repo to
+  `doc/<yyyy>-Q<n>/blog/<yyyy>-<mm>-<dd>-<title-in-english-kebab-case>.md`
 
 ## Content
 
