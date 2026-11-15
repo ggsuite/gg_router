@@ -5,6 +5,7 @@
 ### Changed
 
 - Upgrade the DNA
+- Upgrade the SDK, the dependencies and the DNA
 
 ## 3.4.0 - 2026-11-15
 

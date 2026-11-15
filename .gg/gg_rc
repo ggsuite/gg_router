@@ -1,0 +1,14 @@
+{
+  "do": {
+    "upgrade": {
+      "deps": {
+        "majorVersions": false
+      }
+    }
+  },
+  "can": {
+    "commit": {
+      "checks": true
+    }
+  }
+}
