@@ -13,4 +13,4 @@ found in the LICENSE file in the root of this package.
 
 # Review Light
 
-Read `doc/guides/for-ai/ai-review-guide.md` and follow it.
+Read `doc/en/guides/for-ai/ai-review-guide.md` and follow it.

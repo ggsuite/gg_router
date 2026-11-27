@@ -13,7 +13,7 @@ found in the LICENSE file in the root of this package.
 
 # Vscode
 
-Read `doc/guides/vscode-guide.md` and follow it.
+Read `doc/en/guides/vscode-guide.md` and follow it.
 
 ## 1. Check the extensions
 

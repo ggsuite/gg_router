@@ -17,14 +17,14 @@ found in the LICENSE file in the root of this package.
 
 A DNA repo is a layer other repos list in their `dna/_dna.json`: it is
 named `dna_*` or `dna-*`, or its `dna/_dna.json` declares `mustOverride`.
-In a DNA repo read `doc/guides/readme-dna-guide.md` and
-`doc/templates/readme-dna-template.md`.
+In a DNA repo read `doc/en/guides/readme-dna-guide.md` and
+`doc/en/templates/readme-dna-template.md`.
 
-Every other repo: read `doc/guides/readme-guide.md` and
-`doc/templates/readme-template.md`.
+Every other repo: read `doc/en/guides/readme-guide.md` and
+`doc/en/templates/readme-template.md`.
 
 Both follow the style, language and check rules of
-`doc/guides/readme-guide.md`.
+`doc/en/guides/readme-guide.md`.
 
 ## 2. Run the check
 
@@ -44,7 +44,7 @@ layer the README does not mention.
   the layer ships
 - Headings are in sentence case
 - The documentation section links instead of duplicating
-- `README.de.md` says the same as `README.md`, not only in structure
+- Every `README.<lang>.md` says the same as `README.md`, not only in structure
 
 ## 4. Fix
 

@@ -13,9 +13,9 @@ found in the LICENSE file in the root of this package.
 
 # GG Review Architecture
 
-Read `doc/guides/architecture-guide.md` and follow it. Read
-`doc/guides/code-guide.md` as well; this review works one level above it.
-If `doc/guides/architecture-guide.md` is missing, the DNA of this repo
+Read `doc/en/guides/architecture-guide.md` and follow it. Read
+`doc/en/guides/code-guide.md` as well; this review works one level above it.
+If `doc/en/guides/architecture-guide.md` is missing, the DNA of this repo
 is out of date: report that as the first finding and read the guide from
 the `dna_clean_code` layer in `.ocean` instead. Do not stop.
 
@@ -34,7 +34,7 @@ without a source it is an inferred one.
 
 If the DNA names a project management repo (see `pm-repo-guide.md`) or a
 ticket does, read its goals, requirements and the architecture of the
-current quarter (`doc/<yyyy>-Q<n>/architecture/architecture.md`); with
+current quarter (`pm/<lang>/<yyyy>-Q<n>/architecture/architecture.md`); with
 none, say so and go on.
 
 Write a short list of where the project is going, each point marked as

@@ -13,7 +13,7 @@ found in the LICENSE file in the root of this package.
 
 # Guide
 
-Read `doc/guides/dna-guides-guide.md` and `doc/guides/doc-guide.md` and
+Read `doc/en/guides/dna-guides-guide.md` and `doc/en/guides/doc-guide.md` and
 follow them.
 
 ## 1. Check the guides that are there
@@ -27,8 +27,8 @@ belongs.
 
 ## 2. Write
 
-Put a new English guide in `dna/doc/guides`, a German one in
-`dna/doc/de/guides`.
+Put a new guide in `dna/doc/en/guides` and ship it in every language:
+the same file name in `dna/doc/de/guides` and `dna/doc/fa/guides`.
 
 Keep it short, address the reader directly, one step per line.
 

@@ -13,7 +13,7 @@ found in the LICENSE file in the root of this package.
 
 # Index
 
-Read `doc/guides/index-guide.md` and `doc/templates/index-template.jsonc`
+Read `doc/en/guides/index-guide.md` and `doc/en/templates/index-template.jsonc`
 and follow them.
 
 ## 1. Check whether the index is current

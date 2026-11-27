@@ -13,7 +13,7 @@ found in the LICENSE file in the root of this package.
 
 # Install
 
-Read `doc/guides/install-guide.md` and follow the guides it lists, in
+Read `doc/en/guides/install-guide.md` and follow the guides it lists, in
 order.
 
 ## 1. Check what is installed
