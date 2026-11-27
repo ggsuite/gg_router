@@ -13,7 +13,7 @@ found in the LICENSE file in the root of this package.
 
 # Test
 
-Read `doc/guides/test-guide.md` and follow it. Read the guide for the
+Read `doc/en/guides/test-guide.md` and follow it. Read the guide for the
 language of this repo as well — `test-guide-dart.md` or
 `test-guide-typescript.md` next to it — and apply whichever one matches
 what the repo is written in.

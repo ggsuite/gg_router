@@ -13,7 +13,7 @@ found in the LICENSE file in the root of this package.
 
 # Scripts
 
-Read `doc/guides/scripts-guide.md` and follow it.
+Read `doc/en/guides/scripts-guide.md` and follow it.
 
 ## 1. Check every script parses
 

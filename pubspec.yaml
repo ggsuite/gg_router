@@ -24,7 +24,7 @@ dev_dependencies:
   gg_easy_widget_test: ^1.4.0
   lints: ^6.1.0
   args: ^2.7.0
-  dna_ggsuite: ^2.0.0
+  dna_ggsuite: ^3.0.0
   helix: ^1.15.2
 workspace:
   - example

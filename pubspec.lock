@@ -85,90 +85,90 @@ packages:
     dependency: transitive
     description:
       name: dna_blog
-      sha256: "3f02de53c30b862b26aac473bc65e81626318184482249a98dd6090a31b58cf7"
+      sha256: "63ab62771cba693c63787fbb2fbd29aa7d785e5a6384e780075c0bfd72106360"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0"
+    version: "0.6.0"
   dna_clean_code:
     dependency: transitive
     description:
       name: dna_clean_code
-      sha256: "19900569769dc4a32b43d99fa6a6b9180a9136ba805ec202778b0c3006d03162"
+      sha256: c0ab3e4a76a0cfe71efeb2210fc64b46ed49fdd347ccf714aa95f879b9e09baf
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0"
+    version: "0.6.0"
   dna_ggsuite:
     dependency: "direct dev"
     description:
       name: dna_ggsuite
-      sha256: "3897b2632e7af7180383a20ba3b1494ca994272467c823816a11b27fdb2bfb4f"
+      sha256: "48a7e849c61c0eb62966f0a53c5a688e8622c1fc47cb2adaa1fa7a2230a7ff1d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "3.0.0"
   dna_github:
     dependency: transitive
     description:
       name: dna_github
-      sha256: "5e5dc8f85654c091a3b6d60c49c52fd6a78267da47d39f8a41149692fe722820"
+      sha256: "167ac52d48e9e16dd94cce0ae579b7abe89e8b01d2470dc3cd9e5fb0b022db11"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.3.0"
   dna_guides:
     dependency: transitive
     description:
       name: dna_guides
-      sha256: aec729d7b5901715ae1c97ba80c920da4f1904ec958e7d46ba11fe376e1b1a08
+      sha256: "2fc49bdd66fc7fb87471eddc5482ec7162e842964246a2807fc155df8bffb4f0"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "0.4.0"
   dna_index:
     dependency: transitive
     description:
       name: dna_index
-      sha256: "46ef1b45e9cbd0a8c57e2ab35a24540f0af0572e6aae87b775039121eed17801"
+      sha256: "2610cb379d789111701eaeecf8e022029073497ea4d324f462428d96e3e7b726"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "0.4.0"
   dna_install:
     dependency: transitive
     description:
       name: dna_install
-      sha256: ff9d22a1c0d8297e30e3e17944c9dea4528a652ad93d64c57c1aa0ad2408888d
+      sha256: "481e71bb89d9ee03ffb6d95e39e9d6cadbffaa9b01825ba5c9bcf164fb73975c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "0.5.0"
   dna_readme:
     dependency: transitive
     description:
       name: dna_readme
-      sha256: bd9ee497630164ec5743bf6de9112cc399ae2d17b5a20917d123f0d720ad0b5d
+      sha256: "21fe7ad48765d35b326a10c813304fb4e0c7b408e42e601d5d4f7149d10be52f"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.1"
+    version: "0.5.0"
   dna_scripts:
     dependency: transitive
     description:
       name: dna_scripts
-      sha256: cf5dffa1242fe06668c77664d65e1b86fc0db5127da636ead6f212e47e2127ba
+      sha256: "7c8e633cf842ab3177399947cf3cf0766abc26493924b24f120344b882ced4df"
       url: "https://pub.dev"
     source: hosted
-    version: "0.3.0"
+    version: "0.5.0"
   dna_translate:
     dependency: transitive
     description:
       name: dna_translate
-      sha256: "42299a3ee0623e4c00ee260e72956523d6eb8869b41b63664bb243ca508b5da3"
+      sha256: d138a9a792df63ea24c30a28cb55d0c3c97d2f048830d8a37d9d8b53031dccf0
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0"
+    version: "0.6.0"
   dna_vscode:
     dependency: transitive
     description:
       name: dna_vscode
-      sha256: "84912400705b25abc8abc377c3f1c603a2ed5968f20ae42b7ddf6a6ff32fac48"
+      sha256: "308026923445f247cf391be16da08bd9d78b774d5dec545fd4924ff23feb3052"
       url: "https://pub.dev"
     source: hosted
-    version: "0.4.0"
+    version: "0.6.0"
   fake_async:
     dependency: "direct dev"
     description:
@@ -305,10 +305,10 @@ packages:
     dependency: "direct dev"
     description:
       name: helix
-      sha256: b4751fde19f6e9fd3ec930213b0cb868859a3eb85fe75d67bcb2a76e4d026490
+      sha256: "46beffb2586fff84a445d706ccf68b32b459273263bd177173045a49459d17ea"
       url: "https://pub.dev"
     source: hosted
-    version: "1.15.2"
+    version: "1.18.0"
   hooks:
     dependency: transitive
     description:

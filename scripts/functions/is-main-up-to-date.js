@@ -6,6 +6,10 @@
  * found in the LICENSE file in the root of this package.
  */
 
+import { execSync } from 'child_process';
+
+import { red } from './colors.js';
+
 export const isMainUpToDate = () => {
   try {
     execSync('git fetch origin main');

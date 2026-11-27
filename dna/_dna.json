@@ -10,5 +10,5 @@
   "layers": ["gg_once_per_cycle", "gg_easy_widget_test", "dna_ggsuite"]
 
   // "vars": { "dnaProjectName": "my-project" },
-  // "claude": { "claudeMdInclude": ["doc/conventions"] }
+  // "claude": { "claudeMdInclude": ["doc/en/conventions"] }
 }

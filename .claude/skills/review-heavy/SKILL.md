@@ -13,4 +13,4 @@ found in the LICENSE file in the root of this package.
 
 # Review Heavy
 
-Read `doc/guides/for-ai/review-heavy-guide.md` and follow it.
+Read `doc/en/guides/for-ai/review-heavy-guide.md` and follow it.

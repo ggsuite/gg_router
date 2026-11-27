@@ -1,3 +1,4 @@
+# dna-vscode
 # Ignore artifacts
 build
 coverage
@@ -23,8 +24,8 @@ test/goldens/**
 # back them up and overwrite them on every run. Only the generated parts
 # of doc/ are listed, so the hand-written docs are still formatted.
 dna/
-doc/guides/
-doc/templates/
+doc/*/guides/
+doc/*/templates/
 .vscode/
 .claude/
 scripts/
@@ -34,4 +35,3 @@ pnpm-lock.yaml
 pubspec.lock
 
 tsconfig.json
-

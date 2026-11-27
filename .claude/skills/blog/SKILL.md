@@ -13,21 +13,21 @@ found in the LICENSE file in the root of this package.
 
 # Blog
 
-Read `doc/guides/blog-guide.md` and follow it.
+Read `doc/en/guides/blog-guide.md` and follow it.
 
 ## 1. Check whether a post is missing
 
 Look at the commits of this repo in the current ticket.
 
-Report whether `doc/blog/<yyyy>` — in a project management repo
-`doc/<yyyy>-Q<n>/blog` — already holds a post for this change.
+Report whether `pm/<lang>/<yyyy>-Q<n>/blog` of the leading language
+already holds a post for this change.
 
 Stop here and report when it does.
 
 ## 2. Write the post
 
-Copy `doc/templates/blog-template.md` and fill it in. Posts in other
-languages follow the translate guide.
+Copy `doc/<lang>/templates/blog-template.md` of the leading language and
+fill it in. The other languages of the repo follow the translate guide.
 
 Describe only this repo: its own changes and what updated dependencies
 changed for it. Never mention the repos that use it.

@@ -8,7 +8,7 @@
  * found in the LICENSE file in the root of this package.
  */
 
-// Checks README.md and README.de.md against the README guides and prints
+// Checks README.md and its translations README.<lang>.md against the README guides and prints
 // every finding. Usage: node scripts/check-readme.js [repo directory]
 
 import fs from 'fs';
@@ -237,7 +237,7 @@ const introOf = (prose) => {
           p &&
           !p.startsWith('#') &&
           !/^(\[!\[|!\[|<)/.test(p) &&
-          !/\[(Deutsch|English)\]\(README/.test(p),
+          !/\]\(\.?\/?README(\.[a-z]{2})?\.md\)/.test(p),
       ) ?? null
   );
 };
@@ -251,7 +251,7 @@ const mentions = (text, name) => {
 };
 
 // .............................................................................
-// The checks of README.md and README.de.md
+// The checks of README.md and its translations
 
 const checkSections = (md, sections, findings) => {
   const known = sections.map((s) => s.name.toLowerCase());
@@ -281,6 +281,9 @@ const checkPlaceholders = (md, markdown, template, prefix, findings) => {
 
   const sentences = [
     /<(?!https?:|!--)[A-Z][^<>]*>/g,
+    // Placeholders of the translated templates start with a letter beyond
+    // ASCII, e.g. Farsi
+    /<(?!https?:|!--)[^\x00-\x7F<>\s][^<>]*>/gu,
     /<[a-z][^<>=]*\s[^<>=/]*>/g,
   ];
   for (const pattern of sentences) {
@@ -308,6 +311,9 @@ const checkPlaceholders = (md, markdown, template, prefix, findings) => {
   for (const block of md.codeBlocks) {
     if (block.language !== 'text') continue;
     for (const m of block.code.matchAll(/<[A-Z][^<>]*\s[^<>]*>/g)) add(m[0]);
+    for (const m of block.code.matchAll(/<[^\x00-\x7F<>\s][^<>]*>/gu)) {
+      add(m[0]);
+    }
   }
 
   for (const placeholder of found) {
@@ -439,44 +445,69 @@ const checkTitleAndIntro = (md, pkg, findings) => {
   }
 };
 
-const checkGerman = (repoDir, md, pkg, template, findings) => {
-  if (!/\[Deutsch\]\(\.?\/?README\.de\.md\)/.test(md.prose)) {
-    findings.push(
-      'README.md: the language switcher to README.de.md is missing',
-    );
-  }
-  const markdown = readText(path.join(repoDir, 'README.de.md'));
-  if (markdown === null) {
-    findings.push('README.de.md is missing');
-    return;
-  }
+// The languages of the repo, the leading one first. In a consuming repo the
+// DNA has replaced the name below with the merged value of the variable. In
+// the layer itself it is still the name; then the vars of dna/_dna.json
+// count, and without them the README keeps English and German, as before.
+// The key is assembled, so the DNA leaves it alone.
+const configured = 'en';
+const languagesOf = (repoDir) => {
+  const key = 'dna' + 'Languages';
+  const value =
+    configured === key
+      ? readJsonc(repoDir, 'dna/_dna.json')?.vars?.[key]
+      : configured;
+  if (typeof value !== 'string' || !value.trim()) return ['en', 'de'];
+  return value
+    .split(',')
+    .map((l) => l.trim().toLowerCase())
+    .filter((l) => /^[a-z]{2}$/.test(l));
+};
 
-  const prefix = 'README.de.md: ';
-  const de = parseMarkdown(markdown);
-  if (!/\[English\]\(\.?\/?README\.md\)/.test(de.prose)) {
-    findings.push(`${prefix}the language switcher to README.md is missing`);
-  }
-  if (de.h2.length !== md.h2.length) {
-    findings.push(
-      `${prefix}${de.h2.length} sections, README.md has ${md.h2.length}`,
-    );
-  }
+const readmeOf = (lang) => (lang === 'en' ? 'README.md' : `README.${lang}.md`);
+const switcherRe = (lang) =>
+  new RegExp(`\\]\\(\\.?\\/?${readmeOf(lang).replace(/\./g, '\\.')}\\)`);
 
-  const en = md.codeBlocks.map((b) => b.code.trim());
-  const ge = de.codeBlocks.map((b) => b.code.trim());
-  if (en.length !== ge.length) {
-    findings.push(
-      `${prefix}${ge.length} code blocks, README.md has ${en.length}`,
-    );
-  } else {
-    const index = en.findIndex((code, i) => code !== ge[i]);
-    if (index >= 0) {
-      findings.push(`${prefix}code block ${index + 1} differs from README.md`);
+const checkTranslations = (repoDir, md, pkg, template, findings) => {
+  const others = languagesOf(repoDir).filter((l) => l !== 'en');
+  for (const lang of others) {
+    const file = readmeOf(lang);
+    if (!switcherRe(lang).test(md.prose)) {
+      findings.push(`README.md: the language switcher to ${file} is missing`);
     }
-  }
+    const markdown = readText(path.join(repoDir, file));
+    if (markdown === null) {
+      findings.push(`${file} is missing`);
+      continue;
+    }
 
-  checkPlaceholders(de, markdown, template, prefix, findings);
-  checkLinks(de, repoDir, pkg, prefix, findings);
+    const prefix = `${file}: `;
+    const tr = parseMarkdown(markdown);
+    if (!switcherRe('en').test(tr.prose)) {
+      findings.push(`${prefix}the language switcher to README.md is missing`);
+    }
+    if (tr.h2.length !== md.h2.length) {
+      findings.push(
+        `${prefix}${tr.h2.length} sections, README.md has ${md.h2.length}`,
+      );
+    }
+
+    const en = md.codeBlocks.map((b) => b.code.trim());
+    const other = tr.codeBlocks.map((b) => b.code.trim());
+    if (en.length !== other.length) {
+      findings.push(
+        `${prefix}${other.length} code blocks, README.md has ${en.length}`,
+      );
+    } else {
+      const index = en.findIndex((code, i) => code !== other[i]);
+      if (index >= 0) {
+        findings.push(`${prefix}code block ${index + 1} differs from README.md`);
+      }
+    }
+
+    checkPlaceholders(tr, markdown, template, prefix, findings);
+    checkLinks(tr, repoDir, pkg, prefix, findings);
+  }
 };
 
 // .............................................................................
@@ -573,7 +604,7 @@ export const checkReadme = (repoDir) => {
   const template = readText(
     path.join(
       repoDir,
-      'doc/templates',
+      'doc/en/templates',
       isDna ? 'readme-dna-template.md' : 'readme-template.md',
     ),
   );
@@ -583,7 +614,7 @@ export const checkReadme = (repoDir) => {
   checkPlaceholders(md, markdown, template, '', findings);
   checkLinks(md, repoDir, pkg, '', findings);
   checkMarkdown(md, '', findings);
-  checkGerman(repoDir, md, pkg, template, findings);
+  checkTranslations(repoDir, md, pkg, template, findings);
   if (isDna) checkDna(repoDir, md, findings);
 
   return findings;

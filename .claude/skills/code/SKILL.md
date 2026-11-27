@@ -13,7 +13,7 @@ found in the LICENSE file in the root of this package.
 
 # Code
 
-Read `doc/guides/code-guide.md` and follow it. Read the guide for the
+Read `doc/en/guides/code-guide.md` and follow it. Read the guide for the
 language of this repo as well — `code-guide-dart.md` or
 `code-guide-typescript.md` next to it — and apply whichever one matches
 what the repo is written in.

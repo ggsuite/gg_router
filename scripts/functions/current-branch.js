@@ -6,6 +6,8 @@
  * found in the LICENSE file in the root of this package.
  */
 
+import { execSync } from 'child_process';
+
 export const currentBranch = () => {
   return execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 };
